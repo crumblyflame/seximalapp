@@ -6,9 +6,10 @@ import { Dimension } from "@/lib/conversions";
 export interface ConversionRecord {
   id: string;
   dimension: Dimension;
-  si: { value: string; unit: string };
-  us: { value: string; unit: string };
-  seximal: { value: string; unit: string };
+  si: { value: string; unit: string; unitKey: string };
+  us: { value: string; unit: string; unitKey: string };
+  seximal: { value: string; unit: string; unitKey: string };
+  activeSystem: 'si' | 'us' | 'seximal';
   timestamp: Date;
 }
 

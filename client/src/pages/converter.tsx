@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DimensionTabs } from "@/components/dimension-tabs";
 import { ConversionCard } from "@/components/conversion-card";
 import { ConversionHistory, ConversionRecord } from "@/components/conversion-history";
@@ -40,9 +40,16 @@ export default function Converter() {
   });
 
   const [history, setHistory] = useState<ConversionRecord[]>([]);
+  const isReloadingFromHistory = useRef(false);
 
   // Load initial units for each dimension
   useEffect(() => {
+    // Skip clearing during history reload to prevent nullifying the reload
+    if (isReloadingFromHistory.current) {
+      isReloadingFromHistory.current = false;
+      return;
+    }
+
     const siUnits = unitDefinitions[state.dimension].si;
     const usUnits = unitDefinitions[state.dimension].us;
     const seximalUnits = unitDefinitions[state.dimension].seximal;
@@ -150,10 +157,10 @@ export default function Converter() {
     }));
 
     // Add to history - use custom units if provided
-    addToHistory(newValues, customSelectedUnits);
+    addToHistory(newValues, customSelectedUnits, sourceSystem);
   };
 
-  const addToHistory = (values: Record<SystemType, string>, customSelectedUnits?: Record<SystemType, string>) => {
+  const addToHistory = (values: Record<SystemType, string>, customSelectedUnits?: Record<SystemType, string>, activeSystem?: SystemType) => {
     const units = unitDefinitions[state.dimension];
     const currentSelectedUnits = customSelectedUnits || state.selectedUnits;
     const record: ConversionRecord = {
@@ -161,16 +168,20 @@ export default function Converter() {
       dimension: state.dimension,
       si: {
         value: values.si,
-        unit: units.si.find(u => u.key === currentSelectedUnits.si)?.symbol || ""
+        unit: units.si.find(u => u.key === currentSelectedUnits.si)?.symbol || "",
+        unitKey: currentSelectedUnits.si
       },
       us: {
         value: values.us,
-        unit: units.us.find(u => u.key === currentSelectedUnits.us)?.symbol || ""
+        unit: units.us.find(u => u.key === currentSelectedUnits.us)?.symbol || "",
+        unitKey: currentSelectedUnits.us
       },
       seximal: {
         value: values.seximal,
-        unit: units.seximal.find(u => u.key === currentSelectedUnits.seximal)?.symbol || ""
+        unit: units.seximal.find(u => u.key === currentSelectedUnits.seximal)?.symbol || "",
+        unitKey: currentSelectedUnits.seximal
       },
+      activeSystem: activeSystem || state.activeSystem || "si",
       timestamp: new Date()
     };
 
@@ -182,15 +193,23 @@ export default function Converter() {
   };
 
   const handleHistoryReload = (record: ConversionRecord) => {
+    // Set flag to prevent dimension useEffect from clearing values
+    isReloadingFromHistory.current = true;
+    
     setState(prev => ({
       ...prev,
       dimension: record.dimension,
+      selectedUnits: {
+        si: record.si.unitKey,
+        us: record.us.unitKey,
+        seximal: record.seximal.unitKey
+      },
       values: {
         si: record.si.value,
         us: record.us.value,
         seximal: record.seximal.value
       },
-      activeSystem: "si"
+      activeSystem: record.activeSystem
     }));
 
     toast({
