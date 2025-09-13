@@ -68,21 +68,24 @@ export default function Converter() {
   };
 
   const handleUnitChange = (system: SystemType, unit: string) => {
+    const newSelectedUnits = {
+      ...state.selectedUnits,
+      [system]: unit
+    };
+    
     setState(prev => ({
       ...prev,
-      selectedUnits: {
-        ...prev.selectedUnits,
-        [system]: unit
-      }
+      selectedUnits: newSelectedUnits
     }));
 
     // Trigger reconversion if there's an active value
+    // Pass the new selectedUnits to avoid stale state issues
     if (state.activeSystem && state.values[state.activeSystem]) {
-      performConversion(state.activeSystem, state.values[state.activeSystem]);
+      performConversion(state.activeSystem, state.values[state.activeSystem], newSelectedUnits);
     }
   };
 
-  const performConversion = (sourceSystem: SystemType, sourceValue: string) => {
+  const performConversion = (sourceSystem: SystemType, sourceValue: string, customSelectedUnits?: Record<SystemType, string>) => {
     if (!sourceValue || sourceValue === "") {
       setState(prev => ({
         ...prev,
@@ -92,8 +95,10 @@ export default function Converter() {
       return;
     }
 
+    // Use custom units if provided, otherwise use current state
+    const currentSelectedUnits = customSelectedUnits || state.selectedUnits;
     const units = unitDefinitions[state.dimension];
-    const sourceUnit = units[sourceSystem].find(u => u.key === state.selectedUnits[sourceSystem]);
+    const sourceUnit = units[sourceSystem].find(u => u.key === currentSelectedUnits[sourceSystem]);
     
     if (!sourceUnit) return;
 
@@ -121,7 +126,7 @@ export default function Converter() {
         return;
       }
 
-      const targetUnit = units[targetSystem].find(u => u.key === state.selectedUnits[targetSystem]);
+      const targetUnit = units[targetSystem].find(u => u.key === currentSelectedUnits[targetSystem]);
       if (!targetUnit) return;
 
       const convertedValue = convertBetweenUnits(
@@ -144,26 +149,27 @@ export default function Converter() {
       activeSystem: sourceSystem
     }));
 
-    // Add to history
-    addToHistory(newValues);
+    // Add to history - use custom units if provided
+    addToHistory(newValues, customSelectedUnits);
   };
 
-  const addToHistory = (values: Record<SystemType, string>) => {
+  const addToHistory = (values: Record<SystemType, string>, customSelectedUnits?: Record<SystemType, string>) => {
     const units = unitDefinitions[state.dimension];
+    const currentSelectedUnits = customSelectedUnits || state.selectedUnits;
     const record: ConversionRecord = {
       id: Date.now().toString(),
       dimension: state.dimension,
       si: {
         value: values.si,
-        unit: units.si.find(u => u.key === state.selectedUnits.si)?.symbol || ""
+        unit: units.si.find(u => u.key === currentSelectedUnits.si)?.symbol || ""
       },
       us: {
         value: values.us,
-        unit: units.us.find(u => u.key === state.selectedUnits.us)?.symbol || ""
+        unit: units.us.find(u => u.key === currentSelectedUnits.us)?.symbol || ""
       },
       seximal: {
         value: values.seximal,
-        unit: units.seximal.find(u => u.key === state.selectedUnits.seximal)?.symbol || ""
+        unit: units.seximal.find(u => u.key === currentSelectedUnits.seximal)?.symbol || ""
       },
       timestamp: new Date()
     };

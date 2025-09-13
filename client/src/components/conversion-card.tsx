@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +55,11 @@ export function ConversionCard({
   const [inputValue, setInputValue] = useState(value);
   const config = systemConfig[system];
   const Icon = config.icon;
+
+  // Sync inputValue with prop value changes (fixes display sync bug)
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleValueChange = (newValue: string) => {
     if (system === "seximal") {
