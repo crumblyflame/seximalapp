@@ -108,11 +108,18 @@ export function ConversionCard({
       <CardContent className="p-6 space-y-4">
         {/* Unit Selector */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-muted-foreground">Unit</Label>
+          <Label 
+            htmlFor={`unit-select-${config.testId}`}
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Unit
+          </Label>
           <Select value={selectedUnit} onValueChange={onUnitChange}>
             <SelectTrigger 
-              className="w-full p-3 border border-border rounded-lg bg-background text-foreground font-medium"
+              id={`unit-select-${config.testId}`}
+              className="w-full h-11 min-h-[44px] p-3 border border-border rounded-lg bg-background text-foreground font-medium"
               data-testid={`select-unit-${config.testId}`}
+              aria-label={`Select ${config.title} unit`}
             >
               <SelectValue />
             </SelectTrigger>
@@ -132,17 +139,24 @@ export function ConversionCard({
         
         {/* Value Input */}
         <div className="space-y-2">
-          <Label className="text-sm font-medium text-muted-foreground">
+          <Label 
+            htmlFor={`value-input-${config.testId}`}
+            className="text-sm font-medium text-muted-foreground"
+          >
             {system === "seximal" ? "Value (Base-6)" : "Value"}
           </Label>
           <Input
+            id={`value-input-${config.testId}`}
             type={system === "seximal" ? "text" : "number"}
+            inputMode={system === "seximal" ? "numeric" : "decimal"}
             className="w-full p-4 border border-border rounded-lg bg-background text-foreground text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="0"
             value={inputValue}
             onChange={(e) => handleValueChange(e.target.value)}
             pattern={system === "seximal" ? "[0-5]*\\.?[0-5]*" : undefined}
             data-testid={`input-value-${config.testId}`}
+            aria-label={`Enter ${system === "seximal" ? "base-6" : "decimal"} value for ${config.title}`}
+            aria-describedby={`info-${config.testId}`}
           />
         </div>
 
@@ -151,7 +165,7 @@ export function ConversionCard({
           <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             {system === "seximal" ? "Base-6 Guide" : "Precision"}
           </div>
-          <div className="text-sm font-medium" data-testid={`info-${config.testId}`}>
+          <div className="text-sm font-medium" id={`info-${config.testId}`} data-testid={`info-${config.testId}`}>
             {getConversionInfo()}
           </div>
         </div>

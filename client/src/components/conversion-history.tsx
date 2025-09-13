@@ -82,7 +82,7 @@ export function ConversionHistory({ history, onReload, onClear }: ConversionHist
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground h-11 min-h-[44px]"
           data-testid="button-clear-history"
         >
           Clear All
@@ -108,7 +108,7 @@ export function ConversionHistory({ history, onReload, onClear }: ConversionHist
                 variant="ghost"
                 size="sm"
                 onClick={() => onReload(record)}
-                className="p-2 hover:bg-background rounded-lg transition-colors"
+                className="p-2 hover:bg-background rounded-lg transition-colors h-11 min-h-[44px]"
                 data-testid={`button-reload-${record.id}`}
               >
                 <RotateCcw className="h-4 w-4 text-muted-foreground" />

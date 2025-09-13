@@ -279,9 +279,10 @@ export default function Converter() {
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                size="sm"
-                className="p-2 rounded-lg hover:bg-muted transition-colors"
+                size="default"
+                className="h-11 min-h-[44px] w-11 min-w-[44px] rounded-lg hover:bg-muted transition-colors touch-manipulation"
                 data-testid="button-settings"
+                aria-label="Settings"
               >
                 <Settings className="h-4 w-4 text-muted-foreground" />
               </Button>
@@ -318,7 +319,7 @@ export default function Converter() {
         <div className="flex flex-wrap gap-4 justify-center mb-8">
           <Button
             onClick={handleCopyResults}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium touch-manipulation"
             disabled={!state.values.si && !state.values.us && !state.values.seximal}
             data-testid="button-copy-results"
           >
@@ -327,7 +328,7 @@ export default function Converter() {
           </Button>
           <Button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium touch-manipulation"
             disabled={!state.values.si && !state.values.us && !state.values.seximal}
             data-testid="button-share"
           >
@@ -337,7 +338,7 @@ export default function Converter() {
           <Button
             onClick={handleClearHistory}
             variant="outline"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] rounded-lg transition-colors font-medium touch-manipulation"
             disabled={history.length === 0}
             data-testid="button-clear-all"
           >
