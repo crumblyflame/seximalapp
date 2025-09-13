@@ -1,0 +1,43 @@
+A comprehensive web-based unit conversion application that handles conversions between SI, US Customary, and a unique Seximal measurement system (base-6 notation using only digits 0-5). The app displays all three systems simultaneously with easy dimension switching (length, mass, area, volume, temperature, pressure, etc.) at the top level, and allows users to tap any system to change specific units within that system (e.g., switching between inches, feet, yards, miles in US Customary). Each system serves as both input and output - users can enter values in any of the three systems and see real-time conversions in the other two, with Seximal conversions including both unit conversion and base-6 numerical conversion.
+
+Core Features:
+- Multi-dimensional unit conversion across SI, US Customary, and Seximal systems
+- Interactive dimension selector for length, mass, area, volume, temperature, pressure
+- Tap-to-change unit selection within each measurement system
+- Real-time bidirectional conversion with any field as input/output
+
+Seximal Conversion Values (some given to US Customary, some given to SI):
+Time: 1 tujo = 0.07716 seconds
+Length: 1 tumbo = 2.29867 inches
+Area: 1 surfao = 5.28388 square inches
+Volume: 1 voluo = 199.0345 mL
+Speed: 1 pido = 0.75668 m/s
+Acceleration: 1 gravito = 9.80664 m/s^2
+Mass: 1 mazo = 199.0345 g
+Force: 1 forso = 1.95186 N
+Pressure: 1 premuo = 0.08304 psi
+Work/Energy: 1 nergo = 0.11396 J
+Temperature: 1 grado celsia = 1°C
+Frequency: 1 freko = 12.96 Hz
+Power: 1 paŭo = 1.47694 W
+
+In addition to these conversions, note that Seximal has various factors, just like how SI has milli-, centi-, kilo-, etc. representing powers of 10. For Seximal, the powers of 6 are:
+6^1: unse-
+6^2: duse-
+6^3: trise-
+6^4: kvarse-
+6^5: kvinse-
+6^6: sese:
+6^-1: undo-
+6^-2: dudo-
+6^-3: trido-
+6^-4: kvardo-
+6^-5: kvindo-
+6^-6: sedo-
+
+Visual References:
+Inspired by iPhone's Convertible app, known for its clean interface and intuitive conversion workflows.
+
+Style Guide:
+- Colors: Primary #007AFF (iOS blue), Secondary #34C759 (system green), Background #F2F2F7 (light grey), Cards #FFFFFF (white), Text #000000 (black), Accent #FF9500 (orange for Seximal system)
+- Design: SF Pro Display/Inter fonts, card-based layout with clear system separation, 20px padding, 12px border radius, large touch targets for mobile interaction, clean typography hierarchy with number emphasis
