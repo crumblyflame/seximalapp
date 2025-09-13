@@ -148,7 +148,7 @@ export const unitDefinitions: Record<Dimension, Record<SystemType, Unit[]>> = {
       { key: "atm", name: "Atmospheres", symbol: "atm", toBase: 101325 },
     ],
     us: [
-      { key: "psi", name: "PSI", symbol: "psi", toBase: 6894.76 },
+      { key: "psi", name: "PSI", symbol: "psi", toBase: 6894.757293168361 },
       { key: "psf", name: "PSF", symbol: "psf", toBase: 47.8803 },
     ],
     seximal: [
@@ -181,7 +181,7 @@ export const unitDefinitions: Record<Dimension, Record<SystemType, Unit[]>> = {
   speed: {
     si: [
       { key: "m/s", name: "Meters per Second", symbol: "m/s", toBase: 1 },
-      { key: "km/h", name: "Kilometers per Hour", symbol: "km/h", toBase: 0.277778 },
+      { key: "km/h", name: "Kilometers per Hour", symbol: "km/h", toBase: 0.2777777777777778 },
     ],
     us: [
       { key: "mph", name: "Miles per Hour", symbol: "mph", toBase: 0.44704 },
@@ -315,15 +315,26 @@ function convertTemperature(value: number, fromUnit: string, toUnit: string): nu
   return celsius;
 }
 
-export function formatNumber(value: number, precision: number = 6): string {
-  if (Math.abs(value) < 0.000001) {
+export function formatNumber(value: number, sigFigs: number = 6): string {
+  if (value === 0) {
     return "0";
   }
   
+  const absValue = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  
   // Use scientific notation for very large or very small numbers
-  if (Math.abs(value) >= 1000000 || (Math.abs(value) < 0.001 && Math.abs(value) > 0)) {
-    return value.toExponential(3);
+  if (absValue >= 1000000 || absValue < 0.001) {
+    // Ensure consistent significant figures in scientific notation
+    return sign + absValue.toExponential(sigFigs - 1);
   }
   
-  return parseFloat(value.toFixed(precision)).toString();
+  // For normal range numbers, use significant figures approach
+  const magnitude = Math.floor(Math.log10(absValue));
+  const decimalPlaces = Math.max(0, sigFigs - magnitude - 1);
+  const result = absValue.toFixed(decimalPlaces);
+  
+  // Remove trailing zeros after decimal point
+  const trimmed = parseFloat(result).toString();
+  return sign + trimmed;
 }

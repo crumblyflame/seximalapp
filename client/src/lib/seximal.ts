@@ -21,19 +21,57 @@ export function decimalToSeximal(decimal: number): string {
     }
   }
   
-  // Convert fractional part
+  // Convert fractional part with proper rounding
   let fractionalSeximal = "";
   let frac = fractionalPart;
   let precision = 0;
   const maxPrecision = 6;
   
-  while (frac > 0 && precision < maxPrecision) {
+  // Store digits for potential rounding
+  const digits: number[] = [];
+  
+  // Generate one extra digit for rounding decision
+  while (frac > 0 && precision <= maxPrecision) {
     frac *= 6;
     const digit = Math.floor(frac);
-    fractionalSeximal += digit.toString();
+    digits.push(digit);
     frac -= digit;
     precision++;
   }
+  
+  // Implement proper rounding
+  if (digits.length > maxPrecision) {
+    // Check if we should round up based on the extra digit
+    if (digits[maxPrecision] >= 3) {
+      // Round up by carrying over
+      let carry = 1;
+      for (let i = maxPrecision - 1; i >= 0 && carry; i--) {
+        digits[i] += carry;
+        if (digits[i] >= 6) {
+          digits[i] = 0;
+          carry = 1;
+        } else {
+          carry = 0;
+        }
+      }
+      
+      // If carry propagates to integer part
+      if (carry) {
+        const intValue = parseInt(integerSeximal, 6) + 1;
+        integerSeximal = intValue.toString(6);
+      }
+    }
+    // Remove the extra digit
+    digits.pop();
+  }
+  
+  // Build fractional string, removing trailing zeros
+  for (let i = 0; i < digits.length; i++) {
+    fractionalSeximal += digits[i].toString();
+  }
+  
+  // Remove trailing zeros
+  fractionalSeximal = fractionalSeximal.replace(/0+$/, "");
   
   let result = integerSeximal;
   if (fractionalSeximal) {
