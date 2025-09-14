@@ -98,26 +98,27 @@ export function ConversionCard({
       }`}
       data-testid={`card-${config.testId}`}
     >
-      <div className={`px-6 py-4 ${config.headerClass}`}>
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Icon className="h-5 w-5" />
-          {config.title}
+      <div className={`px-3 sm:px-6 py-2 sm:py-4 ${config.headerClass}`}>
+        <h2 className="text-sm sm:text-lg font-semibold flex items-center gap-1 sm:gap-2">
+          <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="hidden sm:inline">{config.title}</span>
+          <span className="sm:hidden">{config.title.split(' ')[0]}</span>
         </h2>
-        <p className="text-sm opacity-80">{config.subtitle}</p>
+        <p className="text-xs sm:text-sm opacity-80 hidden sm:block">{config.subtitle}</p>
       </div>
-      <CardContent className="p-6 space-y-4">
+      <CardContent className="p-3 sm:p-6 space-y-2 sm:space-y-4">
         {/* Unit Selector */}
-        <div className="space-y-2">
+        <div className="space-y-1 sm:space-y-2">
           <Label 
             htmlFor={`unit-select-${config.testId}`}
-            className="text-sm font-medium text-muted-foreground"
+            className="text-xs sm:text-sm font-medium text-muted-foreground"
           >
             Unit
           </Label>
           <Select value={selectedUnit} onValueChange={onUnitChange}>
             <SelectTrigger 
               id={`unit-select-${config.testId}`}
-              className="w-full h-11 min-h-[44px] p-3 border border-border rounded-lg bg-background text-foreground font-medium"
+              className="w-full h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] p-2 sm:p-3 border border-border rounded-lg bg-background text-foreground font-medium text-sm"
               data-testid={`select-unit-${config.testId}`}
               aria-label={`Select ${config.title} unit`}
             >
@@ -130,7 +131,8 @@ export function ConversionCard({
                   value={unit.key}
                   data-testid={`option-${unit.key}`}
                 >
-                  {unit.name} ({unit.symbol})
+                  <span className="sm:hidden">{unit.symbol}</span>
+                  <span className="hidden sm:inline">{unit.name} ({unit.symbol})</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -138,10 +140,10 @@ export function ConversionCard({
         </div>
         
         {/* Value Input */}
-        <div className="space-y-2">
+        <div className="space-y-1 sm:space-y-2">
           <Label 
             htmlFor={`value-input-${config.testId}`}
-            className="text-sm font-medium text-muted-foreground"
+            className="text-xs sm:text-sm font-medium text-muted-foreground"
           >
             {system === "seximal" ? "Value (Base-6)" : "Value"}
           </Label>
@@ -149,7 +151,7 @@ export function ConversionCard({
             id={`value-input-${config.testId}`}
             type={system === "seximal" ? "text" : "number"}
             inputMode={system === "seximal" ? "numeric" : "decimal"}
-            className="w-full p-4 border border-border rounded-lg bg-background text-foreground text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="w-full p-2 sm:p-4 border border-border rounded-lg bg-background text-foreground text-lg sm:text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="0"
             value={inputValue}
             onChange={(e) => handleValueChange(e.target.value)}
@@ -160,8 +162,8 @@ export function ConversionCard({
           />
         </div>
 
-        {/* Conversion Info */}
-        <div className="bg-muted rounded-lg p-3">
+        {/* Conversion Info - Hidden on mobile to save space */}
+        <div className="bg-muted rounded-lg p-2 sm:p-3 hidden sm:block">
           <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
             {system === "seximal" ? "Base-6 Guide" : "Precision"}
           </div>
@@ -170,17 +172,17 @@ export function ConversionCard({
           </div>
         </div>
 
-        {/* Seximal-specific decimal equivalent */}
+        {/* Seximal-specific decimal equivalent - Compact on mobile */}
         {system === "seximal" && value && (
-          <div className="bg-accent/10 rounded-lg p-3">
-            <div className="text-xs text-accent uppercase tracking-wide mb-1">Decimal Value</div>
-            <div className="text-sm font-medium text-accent" data-testid="seximal-decimal">
+          <div className="bg-accent/10 rounded-lg p-2 sm:p-3">
+            <div className="text-xs text-accent uppercase tracking-wide mb-1 hidden sm:block">Decimal Value</div>
+            <div className="text-xs sm:text-sm font-medium text-accent" data-testid="seximal-decimal">
               {(() => {
                 try {
                   const decimal = seximalToDecimal(value);
-                  return `${value}₆ = ${decimal.toFixed(4)}₁₀`;
+                  return `${value}₆ = ${decimal.toFixed(2)}₁₀`;
                 } catch {
-                  return "Invalid base-6 number";
+                  return "Invalid";
                 }
               })()}
             </div>

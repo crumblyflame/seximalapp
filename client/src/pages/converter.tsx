@@ -291,15 +291,17 @@ export default function Converter() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-6">
         {/* Dimension Tabs */}
-        <DimensionTabs
-          activeDimension={state.dimension}
-          onDimensionChange={handleDimensionChange}
-        />
+        <div className="mb-4 sm:mb-6">
+          <DimensionTabs
+            activeDimension={state.dimension}
+            onDimensionChange={handleDimensionChange}
+          />
+        </div>
 
         {/* Conversion Interface */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 mb-6 sm:mb-8">
           {(["si", "us", "seximal"] as SystemType[]).map((system) => (
             <ConversionCard
               key={system}
@@ -316,39 +318,42 @@ export default function Converter() {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap gap-4 justify-center mb-8">
+        <div className="flex flex-wrap gap-2 sm:gap-4 justify-center mb-4 sm:mb-8">
           <Button
             onClick={handleCopyResults}
-            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium touch-manipulation"
+            className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium touch-manipulation text-sm"
             disabled={!state.values.si && !state.values.us && !state.values.seximal}
             data-testid="button-copy-results"
           >
-            <Copy className="h-4 w-4" />
-            Copy Results
+            <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Copy Results</span>
+            <span className="sm:hidden">Copy</span>
           </Button>
           <Button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium touch-manipulation"
+            className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors font-medium touch-manipulation text-sm"
             disabled={!state.values.si && !state.values.us && !state.values.seximal}
             data-testid="button-share"
           >
-            <Share className="h-4 w-4" />
-            Share Conversion
+            <Share className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Share Conversion</span>
+            <span className="sm:hidden">Share</span>
           </Button>
           <Button
             onClick={handleClearHistory}
             variant="outline"
-            className="flex items-center gap-2 px-4 py-2 h-11 min-h-[44px] rounded-lg transition-colors font-medium touch-manipulation"
+            className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] rounded-lg transition-colors font-medium touch-manipulation text-sm"
             disabled={history.length === 0}
             data-testid="button-clear-all"
           >
-            <Trash2 className="h-4 w-4" />
-            Clear History
+            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Clear History</span>
+            <span className="sm:hidden">Clear</span>
           </Button>
         </div>
 
-        {/* Conversion History */}
-        <div className="mb-8">
+        {/* Conversion History - Hidden on mobile to save space */}
+        <div className="mb-8 hidden sm:block">
           <ConversionHistory
             history={history}
             onReload={handleHistoryReload}
@@ -356,8 +361,10 @@ export default function Converter() {
           />
         </div>
 
-        {/* Seximal Reference */}
-        <SeximalReference />
+        {/* Seximal Reference - Hidden on mobile to save space */}
+        <div className="hidden sm:block">
+          <SeximalReference />
+        </div>
       </main>
 
       {/* Footer */}
