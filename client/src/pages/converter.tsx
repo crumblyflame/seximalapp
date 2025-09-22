@@ -54,12 +54,72 @@ export default function Converter() {
     const usUnits = unitDefinitions[state.dimension].us;
     const seximalUnits = unitDefinitions[state.dimension].seximal;
 
+    // Define default units for each system and dimension
+    const getDefaultUnit = (system: SystemType, dimension: Dimension): string => {
+      if (system === "si") {
+        // Base SI units (no prefix)
+        const baseUnits: Record<Dimension, string> = {
+          length: "m",
+          mass: "kg", 
+          area: "m²",
+          volume: "L",
+          temperature: "°C",
+          pressure: "Pa",
+          time: "s",
+          speed: "m/s",
+          acceleration: "m/s²",
+          force: "N",
+          energy: "J",
+          frequency: "Hz",
+          power: "W"
+        };
+        return baseUnits[dimension] || siUnits[0]?.key || "";
+      } else if (system === "seximal") {
+        // Base seximal units (no prefix)
+        const baseUnits: Record<Dimension, string> = {
+          length: "tumbo",
+          mass: "mazo",
+          area: "surfao", 
+          volume: "voluo",
+          temperature: "grado",
+          pressure: "premuo",
+          time: "tujo",
+          speed: "pido",
+          acceleration: "gravito",
+          force: "forso",
+          energy: "nergo",
+          frequency: "freko",
+          power: "paŭo"
+        };
+        return baseUnits[dimension] || seximalUnits[0]?.key || "";
+      } else if (system === "us") {
+        // Common US Customary units similar to base SI
+        const commonUnits: Record<Dimension, string> = {
+          length: "in",
+          mass: "oz",
+          area: "in²",
+          volume: "fl oz", 
+          temperature: "°F",
+          pressure: "psi",
+          time: "s",
+          speed: "mph",
+          acceleration: "ft/s²",
+          force: "lbf",
+          energy: "BTU",
+          frequency: "Hz",
+          power: "hp"
+        };
+        return commonUnits[dimension] || usUnits[0]?.key || "";
+      }
+      return "";
+    };
+
     setState(prev => ({
       ...prev,
       selectedUnits: {
-        si: siUnits[0]?.key || "",
-        us: usUnits[0]?.key || "",
-        seximal: seximalUnits[0]?.key || ""
+        si: getDefaultUnit("si", state.dimension),
+        us: getDefaultUnit("us", state.dimension),
+        seximal: getDefaultUnit("seximal", state.dimension)
       },
       values: {
         si: "",
