@@ -107,59 +107,85 @@ export function ConversionCard({
         <p className="text-xs sm:text-sm opacity-80 hidden sm:block">{config.subtitle}</p>
       </div>
       <CardContent className="p-3 sm:p-6 space-y-2 sm:space-y-4">
-        {/* Unit Selector */}
-        <div className="space-y-1 sm:space-y-2">
-          <Label 
-            htmlFor={`unit-select-${config.testId}`}
-            className="text-xs sm:text-sm font-medium text-muted-foreground"
-          >
-            Unit
-          </Label>
-          <Select value={selectedUnit} onValueChange={onUnitChange}>
-            <SelectTrigger 
-              id={`unit-select-${config.testId}`}
-              className="w-full h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] p-2 sm:p-3 border border-border rounded-lg bg-background text-foreground font-medium text-sm"
-              data-testid={`select-unit-${config.testId}`}
-              aria-label={`Select ${config.title} unit`}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {units.map((unit) => (
-                <SelectItem 
-                  key={unit.key} 
-                  value={unit.key}
-                  data-testid={`option-${unit.key}`}
+        {/* Mobile: Horizontal layout, Desktop: Vertical layout */}
+        <div className="space-y-2 sm:space-y-4">
+          {/* Labels row - hidden on mobile to save space */}
+          <div className="hidden sm:flex sm:space-x-4">
+            <div className="flex-1">
+              <Label 
+                htmlFor={`unit-select-${config.testId}`}
+                className="text-xs sm:text-sm font-medium text-muted-foreground"
+              >
+                Unit
+              </Label>
+            </div>
+            <div className="flex-1">
+              <Label 
+                htmlFor={`value-input-${config.testId}`}
+                className="text-xs sm:text-sm font-medium text-muted-foreground"
+              >
+                {system === "seximal" ? "Value (Base-6)" : "Value"}
+              </Label>
+            </div>
+          </div>
+
+          {/* Input row */}
+          <div className="flex space-x-2 sm:space-x-4">
+            {/* Value Input - 80% width on mobile */}
+            <div className="w-4/5 sm:w-1/2 sm:order-2">
+              <Label 
+                htmlFor={`value-input-${config.testId}`}
+                className="text-xs font-medium text-muted-foreground sm:hidden mb-1 block"
+              >
+                {system === "seximal" ? "Value" : "Value"}
+              </Label>
+              <Input
+                id={`value-input-${config.testId}`}
+                type={system === "seximal" ? "text" : "number"}
+                inputMode={system === "seximal" ? "decimal" : "decimal"}
+                className="w-full p-2 sm:p-4 border border-border rounded-lg bg-background text-foreground text-base sm:text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
+                placeholder="0"
+                value={inputValue}
+                onChange={(e) => handleValueChange(e.target.value)}
+                pattern={system === "seximal" ? "[0-5]*\\.?[0-5]*" : undefined}
+                data-testid={`input-value-${config.testId}`}
+                aria-label={`Enter ${system === "seximal" ? "base-6" : "decimal"} value for ${config.title}`}
+                aria-describedby={`info-${config.testId}`}
+              />
+            </div>
+
+            {/* Unit Selector - 20% width on mobile */}
+            <div className="w-1/5 sm:w-1/2 sm:order-1">
+              <Label 
+                htmlFor={`unit-select-${config.testId}`}
+                className="text-xs font-medium text-muted-foreground sm:hidden mb-1 block"
+              >
+                Unit
+              </Label>
+              <Select value={selectedUnit} onValueChange={onUnitChange}>
+                <SelectTrigger 
+                  id={`unit-select-${config.testId}`}
+                  className="w-full h-9 sm:h-11 min-h-[36px] sm:min-h-[44px] p-1 sm:p-3 border border-border rounded-lg bg-background text-foreground font-medium text-xs sm:text-sm"
+                  data-testid={`select-unit-${config.testId}`}
+                  aria-label={`Select ${config.title} unit`}
                 >
-                  <span className="sm:hidden">{unit.symbol}</span>
-                  <span className="hidden sm:inline">{unit.name} ({unit.symbol})</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {/* Value Input */}
-        <div className="space-y-1 sm:space-y-2">
-          <Label 
-            htmlFor={`value-input-${config.testId}`}
-            className="text-xs sm:text-sm font-medium text-muted-foreground"
-          >
-            {system === "seximal" ? "Value (Base-6)" : "Value"}
-          </Label>
-          <Input
-            id={`value-input-${config.testId}`}
-            type={system === "seximal" ? "text" : "number"}
-            inputMode={system === "seximal" ? "decimal" : "decimal"}
-            className="w-full p-2 sm:p-4 border border-border rounded-lg bg-background text-foreground text-lg sm:text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
-            placeholder="0"
-            value={inputValue}
-            onChange={(e) => handleValueChange(e.target.value)}
-            pattern={system === "seximal" ? "[0-5]*\\.?[0-5]*" : undefined}
-            data-testid={`input-value-${config.testId}`}
-            aria-label={`Enter ${system === "seximal" ? "base-6" : "decimal"} value for ${config.title}`}
-            aria-describedby={`info-${config.testId}`}
-          />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {units.map((unit) => (
+                    <SelectItem 
+                      key={unit.key} 
+                      value={unit.key}
+                      data-testid={`option-${unit.key}`}
+                    >
+                      <span className="sm:hidden">{unit.symbol}</span>
+                      <span className="hidden sm:inline">{unit.name} ({unit.symbol})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         {/* Conversion Info - Hidden on mobile to save space */}

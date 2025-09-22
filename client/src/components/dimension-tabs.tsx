@@ -72,7 +72,7 @@ export function DimensionTabs({ activeDimension, onDimensionChange }: DimensionT
       <div className="bg-card rounded-lg p-2 shadow-sm border border-border">
         <div 
           ref={radiogroupRef}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-1 overflow-x-auto"
+          className="flex sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-1 overflow-x-auto"
           role="radiogroup"
           aria-label="Select measurement dimension"
         >
@@ -87,7 +87,7 @@ export function DimensionTabs({ activeDimension, onDimensionChange }: DimensionT
                 role="radio"
                 aria-checked={isActive}
                 tabIndex={isActive ? 0 : -1}
-                className={`h-11 min-h-[44px] px-3 py-2 text-sm font-medium rounded-md transition-colors touch-manipulation ${
+                className={`h-11 min-h-[44px] px-3 py-2 text-sm font-medium rounded-md transition-colors touch-manipulation whitespace-nowrap flex-shrink-0 sm:flex-shrink ${
                   isActive
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted text-muted-foreground"
