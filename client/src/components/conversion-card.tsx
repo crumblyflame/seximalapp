@@ -150,7 +150,7 @@ export function ConversionCard({
           <Input
             id={`value-input-${config.testId}`}
             type={system === "seximal" ? "text" : "number"}
-            inputMode={system === "seximal" ? "numeric" : "decimal"}
+            inputMode={system === "seximal" ? "decimal" : "decimal"}
             className="w-full p-2 sm:p-4 border border-border rounded-lg bg-background text-foreground text-lg sm:text-2xl font-bold text-center focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="0"
             value={inputValue}
