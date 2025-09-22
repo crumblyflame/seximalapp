@@ -6,6 +6,7 @@ import { SeximalReference } from "@/components/seximal-reference";
 import { Button } from "@/components/ui/button";
 import { Copy, Share, Trash2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Dimension, 
   SystemType, 
@@ -24,6 +25,7 @@ interface ConversionState {
 
 export default function Converter() {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [state, setState] = useState<ConversionState>({
     dimension: "length",
     selectedUnits: {
@@ -50,16 +52,65 @@ export default function Converter() {
       return;
     }
 
-    const siUnits = unitDefinitions[state.dimension].si;
-    const usUnits = unitDefinitions[state.dimension].us;
-    const seximalUnits = unitDefinitions[state.dimension].seximal;
+    const units = unitDefinitions[state.dimension];
+    
+    // Set default units based on dimension
+    let defaultSi = units.si[0]?.key || "";
+    let defaultUs = units.us[0]?.key || "";
+    let defaultSeximal = units.seximal[0]?.key || "";
+
+    switch (state.dimension) {
+      case "length":
+        defaultSi = "m";
+        defaultUs = "ft";
+        break;
+      case "area":
+        defaultSi = "m2";
+        defaultUs = "ft2"; // Assuming ft2 is the base for area
+        break;
+      case "volume":
+        defaultSi = "m3";
+        defaultUs = "ft3"; // Assuming ft3 is the base for volume
+        break;
+      case "mass":
+        defaultSi = "kg";
+        defaultUs = "oz"; // Ounce is a common basic unit
+        break;
+      case "time":
+        defaultSi = "s";
+        defaultUs = "s"; // Second is the base unit for both
+        break;
+      case "speed":
+        defaultSi = "m/s";
+        defaultUs = "mph"; // Miles per hour is a common basic unit
+        break;
+      case "acceleration":
+        defaultSi = "m/s2";
+        defaultUs = "ft/s2"; // Feet per second squared is a common basic unit
+        break;
+      case "force":
+        defaultSi = "N";
+        defaultUs = "lbf"; // Pound-force is a common basic unit
+        break;
+      case "pressure":
+        defaultSi = "Pa";
+        defaultUs = "psi"; // Pounds per square inch is a common basic unit
+        break;
+      case "power":
+        defaultSi = "W";
+        defaultUs = "hp"; // Horsepower is a common basic unit
+        break;
+      default:
+        // For any other dimension, use the first available unit
+        break;
+    }
 
     setState(prev => ({
       ...prev,
       selectedUnits: {
-        si: siUnits[0]?.key || "",
-        us: usUnits[0]?.key || "",
-        seximal: seximalUnits[0]?.key || ""
+        si: defaultSi,
+        us: defaultUs,
+        seximal: defaultSeximal
       },
       values: {
         si: "",
@@ -79,7 +130,7 @@ export default function Converter() {
       ...state.selectedUnits,
       [system]: unit
     };
-    
+
     setState(prev => ({
       ...prev,
       selectedUnits: newSelectedUnits
@@ -106,7 +157,7 @@ export default function Converter() {
     const currentSelectedUnits = customSelectedUnits || state.selectedUnits;
     const units = unitDefinitions[state.dimension];
     const sourceUnit = units[sourceSystem].find(u => u.key === currentSelectedUnits[sourceSystem]);
-    
+
     if (!sourceUnit) return;
 
     let numericSourceValue: number;
@@ -195,7 +246,7 @@ export default function Converter() {
   const handleHistoryReload = (record: ConversionRecord) => {
     // Set flag to prevent dimension useEffect from clearing values
     isReloadingFromHistory.current = true;
-    
+
     setState(prev => ({
       ...prev,
       dimension: record.dimension,
@@ -233,7 +284,7 @@ export default function Converter() {
     const seximalUnit = units.seximal.find(u => u.key === state.selectedUnits.seximal)?.symbol || "";
 
     const text = `${state.values.si} ${siUnit} = ${state.values.us} ${usUnit} = ${state.values.seximal}₆ ${seximalUnit}`;
-    
+
     try {
       await navigator.clipboard.writeText(text);
       toast({
@@ -256,7 +307,7 @@ export default function Converter() {
     const seximalUnit = units.seximal.find(u => u.key === state.selectedUnits.seximal)?.symbol || "";
 
     const text = `Universal Converter: ${state.values.si} ${siUnit} = ${state.values.us} ${usUnit} = ${state.values.seximal}₆ ${seximalUnit}`;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({ text });
@@ -267,6 +318,15 @@ export default function Converter() {
     } else {
       handleCopyResults();
     }
+  };
+
+  // Handle clear action for the specific buttons
+  const handleClear = () => {
+    setState(prev => ({
+      ...prev,
+      values: { si: "", us: "", seximal: "" },
+      activeSystem: null
+    }));
   };
 
   return (
