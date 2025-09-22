@@ -117,20 +117,23 @@ export function isValidSeximal(seximal: string): boolean {
 // Seximal prefixes and their multipliers
 export const seximalPrefixes = {
   // Positive powers of 6
-  "sese": Math.pow(6, 6),    // 46,656
-  "kvinse": Math.pow(6, 5),  // 7,776
-  "kvarse": Math.pow(6, 4),  // 1,296
-  "trise": Math.pow(6, 3),   // 216
-  "duse": Math.pow(6, 2),    // 36
-  "unse": Math.pow(6, 1),    // 6
-  "": 1,                     // base unit
+  "exa": Math.pow(6, 24),     // 6^24
+  "peta": Math.pow(6, 20),    // 6^20
+  "tera": Math.pow(6, 16),    // 6^16
+  "giga": Math.pow(6, 12),    // 6^12
+  "mega": Math.pow(6, 8),     // 6^8
+  "larga": Math.pow(6, 6),    // 6^6 = 46,656
+  "kila": Math.pow(6, 4),     // 6^4 = 1,296
+  "nifa": Math.pow(6, 2),     // 6^2 = 36
+  "unse": Math.pow(6, 1),     // 6^1 = 6
+  "": 1,                      // base unit
   // Negative powers of 6
-  "undo": Math.pow(6, -1),   // 1/6
-  "dudo": Math.pow(6, -2),   // 1/36
-  "trido": Math.pow(6, -3),  // 1/216
-  "kvardo": Math.pow(6, -4), // 1/1296
-  "kvindo": Math.pow(6, -5), // 1/7776
-  "sedo": Math.pow(6, -6),   // 1/46656
+  "nivi": Math.pow(6, -2),    // 6^-2 = 1/36
+  "milli": Math.pow(6, -4),   // 6^-4 = 1/1,296
+  "tini": Math.pow(6, -6),    // 6^-6 = 1/46,656
+  "micro": Math.pow(6, -8),   // 6^-8
+  "nano": Math.pow(6, -12),   // 6^-12
+  "pico": Math.pow(6, -16),   // 6^-16
 };
 
 export function getPrefixMultiplier(prefix: string): number {

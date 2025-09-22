@@ -3,18 +3,21 @@ import { Book } from "lucide-react";
 
 export function SeximalReference() {
   const prefixes = [
-    { name: "sese- (6⁶)", multiplier: "×46,656" },
-    { name: "kvinse- (6⁵)", multiplier: "×7,776" },
-    { name: "kvarse- (6⁴)", multiplier: "×1,296" },
-    { name: "trise- (6³)", multiplier: "×216" },
-    { name: "duse- (6²)", multiplier: "×36" },
+    { name: "exa- (6²⁴)", multiplier: "×2.82e17" },
+    { name: "peta- (6²⁰)", multiplier: "×1.30e14" },
+    { name: "tera- (6¹⁶)", multiplier: "×6.00e10" },
+    { name: "giga- (6¹²)", multiplier: "×2.78e7" },
+    { name: "mega- (6⁸)", multiplier: "×1.68e5" },
+    { name: "larga- (6⁶)", multiplier: "×46,656" },
+    { name: "kila- (6⁴)", multiplier: "×1,296" },
+    { name: "nifa- (6²)", multiplier: "×36" },
     { name: "unse- (6¹)", multiplier: "×6" },
-    { name: "undo- (6⁻¹)", multiplier: "÷6" },
-    { name: "dudo- (6⁻²)", multiplier: "÷36" },
-    { name: "trido- (6⁻³)", multiplier: "÷216" },
-    { name: "kvardo- (6⁻⁴)", multiplier: "÷1,296" },
-    { name: "kvindo- (6⁻⁵)", multiplier: "÷7,776" },
-    { name: "sedo- (6⁻⁶)", multiplier: "÷46,656" },
+    { name: "nivi- (6⁻²)", multiplier: "÷36" },
+    { name: "milli- (6⁻⁴)", multiplier: "÷1,296" },
+    { name: "tini- (6⁻⁶)", multiplier: "÷46,656" },
+    { name: "micro- (6⁻⁸)", multiplier: "÷1.68e5" },
+    { name: "nano- (6⁻¹²)", multiplier: "÷2.78e7" },
+    { name: "pico- (6⁻¹⁶)", multiplier: "÷6.00e10" },
   ];
 
   const baseUnits = [
