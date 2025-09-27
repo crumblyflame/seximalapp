@@ -4,7 +4,8 @@ import { ConversionCard } from "@/components/conversion-card";
 import { ConversionHistory, ConversionRecord } from "@/components/conversion-history";
 import { SeximalReference } from "@/components/seximal-reference";
 import { Button } from "@/components/ui/button";
-import { Copy, Share, Trash2, Settings } from "lucide-react";
+import { Copy, Share, Trash2 } from "lucide-react";
+
 import { useToast } from "@/hooks/use-toast";
 import { 
   Dimension, 
@@ -331,26 +332,6 @@ export default function Converter() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-foreground">Universal Converter</h1>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="default"
-                className="h-11 min-h-[44px] w-11 min-w-[44px] rounded-lg hover:bg-muted transition-colors touch-manipulation"
-                data-testid="button-settings"
-                aria-label="Settings"
-              >
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8 py-3 sm:py-6">
         {/* Dimension Tabs */}
         <div className="mb-4 sm:mb-6">
