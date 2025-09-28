@@ -14,14 +14,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="min-h-screen bg-background">
-          {/* Header */}
-          <header className="bg-card border-b border-border sticky top-0 z-50">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16">
-                <h1 className="text-xl font-semibold text-foreground">Universal Converter</h1>
-              </div>
-            </div>
-          </header>
+          {/* Header removed */}
 
           {/* Main Navigation */}
           <MainNavigation activeTab={activeTab} onTabChange={setActiveTab} />
