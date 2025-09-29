@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 
 interface MainNavigationProps {
-  activeTab: "units" | "clock";
-  onTabChange: (tab: "units" | "clock") => void;
+  activeTab: "units" | "clock" | "calendar";
+  onTabChange: (tab: "units" | "clock" | "calendar") => void;
 }
 
 export function MainNavigation({ activeTab, onTabChange }: MainNavigationProps) {
@@ -34,6 +34,18 @@ export function MainNavigation({ activeTab, onTabChange }: MainNavigationProps) 
               onClick={() => onTabChange("clock")}
             >
               Clock
+            </Button>
+            <Button
+              variant={activeTab === "calendar" ? "default" : "ghost"}
+              size="sm"
+              className={`px-6 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === "calendar"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => onTabChange("calendar")}
+            >
+              Calendar
             </Button>
           </div>
         </div>
