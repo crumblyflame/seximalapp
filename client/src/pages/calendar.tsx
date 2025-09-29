@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -51,7 +51,23 @@ export default function Calendar() {
   }, []);
 
   useEffect(() => {
-    setCurrentSeximalDate(convertToSeximalDate(currentDate));
+    try {
+      const seximalDate = convertToSeximalDate(currentDate);
+      console.log('Current Gregorian date:', currentDate);
+      console.log('Converted seximal date:', seximalDate);
+      setCurrentSeximalDate(seximalDate);
+    } catch (error) {
+      console.error('Error converting date:', error);
+      // Fallback to a default date if conversion fails
+      setCurrentSeximalDate({
+        year: 25, // Current approximate year
+        twomoon: 0,
+        week: 0,
+        dayOfWeek: 0,
+        dayOfYear: 0,
+        isIntercalary: false
+      });
+    }
   }, [currentDate]);
 
   // Convert Gregorian date to seximal date
@@ -201,8 +217,21 @@ export default function Calendar() {
     return calendarData;
   };
 
+  // Show a simple fallback if date conversion fails
   if (!currentSeximalDate) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Seximal Calendar</h1>
+            <p>Loading calendar data...</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Current date: {currentDate.toLocaleDateString()}
+            </p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   const calendarData = generateCalendarData(currentSeximalDate.year);
