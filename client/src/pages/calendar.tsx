@@ -125,24 +125,25 @@ export default function Calendar() {
     const calendarData: CalendarTwomoon[] = [];
 
     for (let twomoon = 0; twomoon < 6; twomoon++) {
-      const twomoonData = {
+      const twomoonData: CalendarTwomoon = {
         name: TWOMOONS[twomoon],
         weeks: []
       };
 
       for (let week = 0; week < 10; week++) {
-        const weekData = {
+        const weekData: CalendarWeek = {
           weekNumber: week,
           days: []
         };
 
         for (let day = 0; day < 6; day++) {
           const dayOfYear = twomoon * 60 + week * 6 + day;
-          weekData.days.push({
+          const dayData: CalendarDay = {
             dayOfWeek: day,
             date: dayOfYear + 1,
             isToday: false // Will be set below
-          });
+          };
+          weekData.days.push(dayData);
         }
 
         twomoonData.weeks.push(weekData);
@@ -153,7 +154,7 @@ export default function Calendar() {
 
     // Add intercalary days if it's a leap year
     if (isLeapYear) {
-      const intercalaryData = {
+      const intercalaryData: CalendarTwomoon = {
         name: "Intercalary",
         weeks: [{
           weekNumber: 10,
@@ -162,19 +163,20 @@ export default function Calendar() {
       };
 
       for (let i = 0; i < 6; i++) {
-        intercalaryData.weeks[0].days.push({
+        const dayData: CalendarDay = {
           dayOfWeek: i,
           date: 361 + i,
           isToday: false,
           isIntercalary: true,
           festivalName: INTERCALARY_DAYS[i]
-        });
+        };
+        intercalaryData.weeks[0].days.push(dayData);
       }
 
       calendarData.push(intercalaryData);
     } else {
       // 5 intercalary days for non-leap years
-      const intercalaryData = {
+      const intercalaryData: CalendarTwomoon = {
         name: "Intercalary",
         weeks: [{
           weekNumber: 10,
@@ -183,13 +185,14 @@ export default function Calendar() {
       };
 
       for (let i = 0; i < 5; i++) {
-        intercalaryData.weeks[0].days.push({
+        const dayData: CalendarDay = {
           dayOfWeek: i,
           date: 361 + i,
           isToday: false,
           isIntercalary: true,
           festivalName: INTERCALARY_DAYS[i]
-        });
+        };
+        intercalaryData.weeks[0].days.push(dayData);
       }
 
       calendarData.push(intercalaryData);
