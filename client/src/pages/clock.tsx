@@ -138,11 +138,16 @@ export default function Clock() {
               </div>
 
               <div className="text-center">
-                <div className="text-6xl font-mono font-bold text-foreground mb-4">
+                <div className={`font-mono font-bold text-foreground mb-4 ${showSixths ? 'text-5xl' : 'text-6xl'}`}>
                   {seximalTime.hours}:{seximalTime.minutes}:{seximalTime.seconds}
-                  {showSixths && seximalTime.sixths ? `.${seximalTime.sixths}` : ''}
-                  <span className="text-3xl align-super">₆</span>
+                  <span className={`align-super ${showSixths ? 'text-2xl' : 'text-3xl'}`}>₆</span>
                 </div>
+                {showSixths && seximalTime.sixths && (
+                  <div className="text-3xl font-mono font-bold text-foreground mb-2">
+                    .{seximalTime.sixths}
+                    <span className="text-xl align-super">₆</span>
+                  </div>
+                )}
                 <div className="text-sm text-muted-foreground mt-4 space-y-1">
                   <div>Hours: Normal (0-35₆)</div>
                   <div>Minutes: Every 100 seconds</div>
