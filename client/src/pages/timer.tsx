@@ -20,6 +20,7 @@ interface CountdownTime {
   standard: TimeInput;
   seximal: TimeInput;
   seximalTotalUnits: number; // Total seximal time units for proper countdown
+  accumulatedTimeForSeximal: number; // Track real seconds accumulated for seximal countdown
 }
 
 export default function Timer() {
@@ -155,7 +156,17 @@ export default function Timer() {
       if (!prevTime) return null;
 
       const newTotalSeconds = prevTime.totalSeconds - 1;
-      const newSeximalUnits = decrementSeximalTime(prevTime.seximalTotalUnits);
+      const newAccumulatedTime = prevTime.accumulatedTimeForSeximal + 1; // Add 1 second
+      const SEXIMAL_SECOND_DURATION = 25/9; // ~2.777 seconds
+
+      let newSeximalUnits = prevTime.seximalTotalUnits;
+      let resetAccumulatedTime = newAccumulatedTime;
+
+      // Check if enough time has passed to decrement seximal units
+      if (newAccumulatedTime >= SEXIMAL_SECOND_DURATION) {
+        newSeximalUnits = decrementSeximalTime(prevTime.seximalTotalUnits);
+        resetAccumulatedTime = newAccumulatedTime - SEXIMAL_SECOND_DURATION;
+      }
 
       if (newTotalSeconds <= 0) {
         setIsRunning(false);
@@ -165,14 +176,16 @@ export default function Timer() {
           totalSeconds: 0,
           standard: { hours: "0", minutes: "0", seconds: "0" },
           seximal: { hours: "0", minutes: "0", seconds: "0" },
-          seximalTotalUnits: 0
+          seximalTotalUnits: 0,
+          accumulatedTimeForSeximal: 0
         };
       } else {
         return {
           totalSeconds: newTotalSeconds,
           standard: formatTime(newTotalSeconds, "standard"),
           seximal: formatSeximalTime(newSeximalUnits),
-          seximalTotalUnits: newSeximalUnits
+          seximalTotalUnits: newSeximalUnits,
+          accumulatedTimeForSeximal: resetAccumulatedTime
         };
       }
     });
@@ -218,7 +231,8 @@ export default function Timer() {
         totalSeconds,
         standard: formatTime(totalSeconds, "standard"),
         seximal: formatSeximalTime(seximalUnits),
-        seximalTotalUnits: seximalUnits
+        seximalTotalUnits: seximalUnits,
+        accumulatedTimeForSeximal: 0
       });
       setIsFinished(false);
     }
