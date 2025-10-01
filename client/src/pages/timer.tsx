@@ -157,6 +157,42 @@ export default function Timer() {
     }
   };
 
+  const formatStandardToSeximal = (totalSeconds: number): TimeInput & { sixths: string } => {
+    // Convert decimal seconds to seximal time units properly
+    // 1 seximal second = 25/9 real seconds
+    // So real seconds to seximal seconds conversion factor is 9/25
+
+    // First convert to total seximal seconds (with fractional part)
+    const totalSeximalSecondsWithFraction = totalSeconds * (9/25);
+
+    // Split into whole and fractional parts
+    const wholeSeximalSeconds = Math.floor(totalSeximalSecondsWithFraction);
+    const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
+
+    // Convert to seximal time units (base 6)
+    const seximalHours = Math.floor(wholeSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
+    const remainingAfterHours = wholeSeximalSeconds % 216;
+
+    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+
+    // Calculate sixths of a seximal second (0-5 in base 6)
+    // Since we're showing fractional seximal seconds, we need to convert the fractional part
+    const sixths = Math.floor(fractionalSeximalSeconds * 6) % 6;
+
+    // Convert to seximal digits (base 6)
+    const toSeximalDigit = (num: number): string => {
+      return num.toString(6);
+    };
+
+    return {
+      hours: toSeximalDigit(seximalHours),
+      minutes: toSeximalDigit(seximalMinutes),
+      seconds: toSeximalDigit(seximalSeconds),
+      sixths: sixths.toString(6)
+    };
+  };
+
   const formatSeximalTimeWithSixths = (seximalUnits: number, fractionalTime: number): TimeInput & { sixths: string } => {
     const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
     const remainingAfterHours = seximalUnits % 216;
@@ -255,19 +291,22 @@ export default function Timer() {
     const totalSeconds = convertToSeconds(inputTime, timeSystem);
     if (totalSeconds > 0) {
       let seximalUnits: number;
+      let initialSeximalDisplay: TimeInput & { sixths: string };
 
       if (timeSystem === "seximal") {
         // When input is in seximal format, use the input values directly as seximal units
         seximalUnits = convertToSeximalUnits(inputTime);
+        initialSeximalDisplay = formatSeximalTimeWithSixths(seximalUnits, 0);
       } else {
-        // When input is in standard format, convert decimal seconds to seximal units
+        // When input is in standard format, use the proper conversion for initial display
         seximalUnits = Math.floor(totalSeconds / (25/9));
+        initialSeximalDisplay = formatStandardToSeximal(totalSeconds);
       }
 
       setCountdownTime({
         totalSeconds,
         standard: formatTime(totalSeconds, "standard"),
-        seximal: formatSeximalTimeWithSixths(seximalUnits, 0),
+        seximal: initialSeximalDisplay,
         seximalTotalUnits: seximalUnits,
         accumulatedTimeForSeximal: 0,
         accumulatedTimeForStandardTenths: 0,
