@@ -19,6 +19,7 @@ interface CountdownTime {
   totalSeconds: number;
   standard: TimeInput;
   seximal: TimeInput;
+  seximalTotalUnits: number; // Total seximal time units for proper countdown
 }
 
 export default function Timer() {
@@ -85,13 +86,40 @@ export default function Timer() {
     }
   };
 
+  const convertToSeximalUnits = (time: TimeInput): number => {
+    const hours = parseInt(time.hours) || 0;
+    const minutes = parseInt(time.minutes) || 0;
+    const seconds = parseInt(time.seconds) || 0;
+    // Convert to total seximal time units (base 6)
+    return hours * 216 + minutes * 36 + seconds; // 6^3, 6^2, 6^1
+  };
+
+  const decrementSeximalTime = (seximalUnits: number): number => {
+    if (seximalUnits <= 0) return 0;
+    return seximalUnits - 1;
+  };
+
+  const formatSeximalTime = (seximalUnits: number): TimeInput => {
+    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
+    const remainingAfterHours = seximalUnits % 216;
+
+    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+
+    return {
+      hours: seximalHours.toString(),
+      minutes: seximalMinutes.toString(),
+      seconds: seximalSeconds.toString()
+    };
+  };
+
   const formatTime = (totalSeconds: number, system: TimeSystem): TimeInput => {
     if (system === "seximal") {
       // For seximal time display, we need to convert from decimal seconds back to seximal time units
       // First, convert total decimal seconds to seximal seconds (each seximal second = 25/9 decimal seconds)
       const totalSeximalSeconds = Math.floor(totalSeconds / (25/9));
 
-      // Convert to seximal time units
+      // Convert to seximal time units (base 6)
       const seximalHours = Math.floor(totalSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
       const remainingAfterHours = totalSeximalSeconds % 216;
 
@@ -99,14 +127,15 @@ export default function Timer() {
       const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
 
       return {
-        hours: Math.floor(seximalHours / 36).toString(), // 6^2 place for hours
-        minutes: (seximalHours % 36).toString(), // 6^1 place for minutes
-        seconds: seximalSeconds.toString() // 6^0 place for seconds
+        hours: seximalHours.toString(), // Hours in base 10 for display
+        minutes: seximalMinutes.toString(), // Minutes in base 10 for display
+        seconds: seximalSeconds.toString() // Seconds in base 10 for display
       };
     } else {
+      // Standard time: truncate fractional seconds for display but keep precision in memory
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
+      const seconds = Math.floor(totalSeconds % 60); // Truncate fractional seconds
 
       return {
         hours: hours.toString(),
@@ -121,6 +150,7 @@ export default function Timer() {
       if (!prevTime) return null;
 
       const newTotalSeconds = prevTime.totalSeconds - 1;
+      const newSeximalUnits = decrementSeximalTime(prevTime.seximalTotalUnits);
 
       if (newTotalSeconds <= 0) {
         setIsRunning(false);
@@ -129,13 +159,15 @@ export default function Timer() {
         return {
           totalSeconds: 0,
           standard: { hours: "0", minutes: "0", seconds: "0" },
-          seximal: { hours: "0", minutes: "0", seconds: "0" }
+          seximal: { hours: "0", minutes: "0", seconds: "0" },
+          seximalTotalUnits: 0
         };
       } else {
         return {
           totalSeconds: newTotalSeconds,
           standard: formatTime(newTotalSeconds, "standard"),
-          seximal: formatTime(newTotalSeconds, "seximal")
+          seximal: formatSeximalTime(newSeximalUnits),
+          seximalTotalUnits: newSeximalUnits
         };
       }
     });
@@ -167,10 +199,15 @@ export default function Timer() {
   const setTimer = () => {
     const totalSeconds = convertToSeconds(inputTime, timeSystem);
     if (totalSeconds > 0) {
+      const seximalUnits = timeSystem === "seximal"
+        ? convertToSeximalUnits(inputTime)
+        : Math.floor(totalSeconds / (25/9)); // Convert decimal seconds to seximal units
+
       setCountdownTime({
         totalSeconds,
         standard: formatTime(totalSeconds, "standard"),
-        seximal: formatTime(totalSeconds, "seximal")
+        seximal: formatSeximalTime(seximalUnits),
+        seximalTotalUnits: seximalUnits
       });
       setIsFinished(false);
     }
