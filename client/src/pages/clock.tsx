@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock as ClockIcon, Globe } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface SeximalTime {
   hours: string;
   minutes: string;
   seconds: string;
+  sixths?: string;
 }
 
 interface StandardTime {
@@ -17,6 +20,7 @@ interface StandardTime {
 
 export default function Clock() {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [showSixths, setShowSixths] = useState<boolean>(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,30 +54,36 @@ export default function Clock() {
   const getSeximalTime = (date: Date): SeximalTime => {
     // Get total seconds since midnight
     const totalSeconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() / 1000;
-    
+
     // Seximal time calculations:
     // - Seximal seconds tick every 2.777... (25/9) real seconds
-    // - Seximal minutes tick every 100 real seconds  
+    // - Seximal minutes tick every 100 real seconds
     // - Seximal hours tick normally (every 3600 real seconds)
-    
+
     // Calculate seximal hours (0-35 in seximal, which is 0-23 in decimal)
     const seximalHoursDecimal = Math.floor(totalSeconds / 3600);
     const seximalHours = seximalHoursDecimal.toString(6).padStart(2, "0");
-    
+
     // Calculate seximal minutes (ticks every 100 real seconds)
     const remainingAfterHours = totalSeconds % 3600;
     const seximalMinutesDecimal = Math.floor(remainingAfterHours / 100);
     const seximalMinutes = seximalMinutesDecimal.toString(6).padStart(2, "0");
-    
+
     // Calculate seximal seconds (ticks every 25/9 real seconds)
     const remainingAfterMinutes = remainingAfterHours % 100;
     const seximalSecondsDecimal = Math.floor(remainingAfterMinutes / (25/9));
     const seximalSeconds = seximalSecondsDecimal.toString(6).padStart(2, "0");
 
+    // Calculate sixths of a seximal second
+    const fractionalPart = (remainingAfterMinutes / (25/9)) - seximalSecondsDecimal;
+    const sixthsDecimal = Math.floor(fractionalPart * 6);
+    const sixths = sixthsDecimal.toString(6);
+
     return {
       hours: seximalHours,
       minutes: seximalMinutes,
-      seconds: seximalSeconds
+      seconds: seximalSeconds,
+      sixths: sixths
     };
   };
 
@@ -115,15 +125,29 @@ export default function Clock() {
               <p className="text-sm opacity-80">Base-6 Time System</p>
             </CardHeader>
             <CardContent className="p-8">
+              {/* Sixth-second toggle */}
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Label htmlFor="sixths-toggle" className="text-sm font-medium">
+                  Show sixths of seconds:
+                </Label>
+                <Switch
+                  id="sixths-toggle"
+                  checked={showSixths}
+                  onCheckedChange={setShowSixths}
+                />
+              </div>
+
               <div className="text-center">
                 <div className="text-6xl font-mono font-bold text-foreground mb-4">
                   {seximalTime.hours}:{seximalTime.minutes}:{seximalTime.seconds}
+                  {showSixths && seximalTime.sixths ? `.${seximalTime.sixths}` : ''}
                   <span className="text-3xl align-super">₆</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-4 space-y-1">
                   <div>Hours: Normal (0-35₆)</div>
                   <div>Minutes: Every 100 seconds</div>
                   <div>Seconds: Every 2.78 seconds</div>
+                  {showSixths && <div>Sixths: Fractions of a second</div>}
                 </div>
               </div>
             </CardContent>
