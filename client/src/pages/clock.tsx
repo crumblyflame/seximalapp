@@ -140,19 +140,14 @@ export default function Clock() {
               <div className="text-center">
                 <div className={`font-mono font-bold text-foreground mb-4 ${showSixths ? 'text-5xl' : 'text-6xl'}`}>
                   {seximalTime.hours}:{seximalTime.minutes}:{seximalTime.seconds}
+                  {showSixths && seximalTime.sixths ? `.${seximalTime.sixths}` : ''}
                   <span className={`align-super ${showSixths ? 'text-2xl' : 'text-3xl'}`}>₆</span>
                 </div>
-                {showSixths && seximalTime.sixths && (
-                  <div className="text-3xl font-mono font-bold text-foreground mb-2">
-                    .{seximalTime.sixths}
-                    <span className="text-xl align-super">₆</span>
-                  </div>
-                )}
                 <div className="text-sm text-muted-foreground mt-4 space-y-1">
                   <div>Hours: Normal (0-35₆)</div>
                   <div>Minutes: Every 100 seconds</div>
                   <div>Seconds: Every 2.78 seconds</div>
-                  {showSixths && <div>Sixths: Fractions of a second</div>}
+                  {showSixths && <div>Sixths: Every 0.463 seconds</div>}
                 </div>
               </div>
             </CardContent>
