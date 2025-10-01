@@ -142,17 +142,18 @@ export default function Timer() {
         tenths: "0"
       };
     } else {
-      // Standard time: show tenths of seconds
+      // Standard time: show tenths of seconds (countdown style)
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = Math.floor(totalSeconds % 60);
       const tenths = Math.floor((totalSeconds * 10) % 10); // Get tenths place
+      const countdownTenths = (9 - tenths) % 10; // Reverse for countdown (9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
       return {
         hours: hours.toString(),
         minutes: minutes.toString(),
         seconds: seconds.toString(),
-        tenths: tenths.toString()
+        tenths: countdownTenths.toString()
       };
     }
   };
@@ -164,11 +165,12 @@ export default function Timer() {
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
     const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
 
-    // Calculate sixths of a seximal second
+    // Calculate sixths of a seximal second for countdown (decrementing)
     // A seximal second = 25/9 real seconds
     // A sixth of a seximal second = (25/9)/6 = 25/54 real seconds
-    // So we need to calculate how many sixths have passed based on fractional time
+    // For countdown: we want to show 5, 4, 3, 2, 1, 0 as time progresses
     const sixths = Math.floor((fractionalTime / (25/54)) % 6);
+    const countdownSixths = (5 - sixths) % 6; // Reverse the count for countdown
 
     // Convert to seximal digits (base 6)
     const toSeximalDigit = (num: number): string => {
@@ -179,7 +181,7 @@ export default function Timer() {
       hours: toSeximalDigit(seximalHours),
       minutes: toSeximalDigit(seximalMinutes),
       seconds: toSeximalDigit(seximalSeconds),
-      sixths: sixths.toString(6) // Show sixths in base 6
+      sixths: countdownSixths.toString(6) // Show countdown sixths in base 6
     };
   };
 
