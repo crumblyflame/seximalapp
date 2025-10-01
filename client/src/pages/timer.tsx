@@ -106,10 +106,15 @@ export default function Timer() {
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
     const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
 
+    // Convert to seximal digits (base 6)
+    const toSeximalDigit = (num: number): string => {
+      return num.toString(6);
+    };
+
     return {
-      hours: seximalHours.toString(),
-      minutes: seximalMinutes.toString(),
-      seconds: seximalSeconds.toString()
+      hours: toSeximalDigit(seximalHours),
+      minutes: toSeximalDigit(seximalMinutes),
+      seconds: toSeximalDigit(seximalSeconds)
     };
   };
 
@@ -199,9 +204,15 @@ export default function Timer() {
   const setTimer = () => {
     const totalSeconds = convertToSeconds(inputTime, timeSystem);
     if (totalSeconds > 0) {
-      const seximalUnits = timeSystem === "seximal"
-        ? convertToSeximalUnits(inputTime)
-        : Math.floor(totalSeconds / (25/9)); // Convert decimal seconds to seximal units
+      let seximalUnits: number;
+
+      if (timeSystem === "seximal") {
+        // When input is in seximal format, use the input values directly as seximal units
+        seximalUnits = convertToSeximalUnits(inputTime);
+      } else {
+        // When input is in standard format, convert decimal seconds to seximal units
+        seximalUnits = Math.floor(totalSeconds / (25/9));
+      }
 
       setCountdownTime({
         totalSeconds,
@@ -329,7 +340,7 @@ export default function Timer() {
                   {/* Seximal Time Display */}
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground mb-2">Seximal Time</div>
-                    <div className="text-4xl font-mono font-bold text-accent-foreground">
+                    <div className="text-4xl font-mono font-bold text-foreground">
                       {countdownTime.seximal.hours.padStart(2, "0")}:
                       {countdownTime.seximal.minutes.padStart(2, "0")}:
                       {countdownTime.seximal.seconds.padStart(2, "0")}
