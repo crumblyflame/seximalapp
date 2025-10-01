@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 // Seximal calendar constants
@@ -41,6 +43,8 @@ interface CalendarTwomoon {
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [currentSeximalDate, setCurrentSeximalDate] = useState<SeximalDate | null>(null);
+  const [selectedDate, setSelectedDate] = useState<{gregorian: Date, seximal: SeximalDate} | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -179,10 +183,10 @@ export default function Calendar() {
       calendarData.push(twomoonData);
     }
 
-    // Add intercalary days if it's a leap year
+    // Add festival days if it's a leap year
     if (isLeapYear) {
-      const intercalaryData: CalendarTwomoon = {
-        name: "Intercalary",
+      const festivalData: CalendarTwomoon = {
+        name: "Festival",
         weeks: [{
           weekNumber: 10,
           days: []
@@ -197,14 +201,14 @@ export default function Calendar() {
           isIntercalary: true,
           festivalName: INTERCALARY_DAYS[i]
         };
-        intercalaryData.weeks[0].days.push(dayData);
+        festivalData.weeks[0].days.push(dayData);
       }
 
-      calendarData.push(intercalaryData);
+      calendarData.push(festivalData);
     } else {
-      // 5 intercalary days for non-leap years
-      const intercalaryData: CalendarTwomoon = {
-        name: "Intercalary",
+      // 5 festival days for non-leap years
+      const festivalData: CalendarTwomoon = {
+        name: "Festival",
         weeks: [{
           weekNumber: 10,
           days: []
@@ -219,10 +223,10 @@ export default function Calendar() {
           isIntercalary: true,
           festivalName: INTERCALARY_DAYS[i]
         };
-        intercalaryData.weeks[0].days.push(dayData);
+        festivalData.weeks[0].days.push(dayData);
       }
 
-      calendarData.push(intercalaryData);
+      calendarData.push(festivalData);
     }
 
     return calendarData;
@@ -259,6 +263,24 @@ export default function Calendar() {
     }
   }
 
+  // Handle day click
+  const handleDayClick = (twomoonIndex: number, weekIndex: number, dayIndex: number) => {
+    const clickedDay = calendarData[twomoonIndex].weeks[weekIndex].days[dayIndex];
+    const dayOfYear = clickedDay.date - 1; // Convert back to 0-based
+
+    // Calculate Gregorian date from seximal day of year
+    const gregorianDate = new Date(SEXIMAL_EPOCH.getTime() + (currentSeximalDate.year - 1) * 365 * 24 * 60 * 60 * 1000 + dayOfYear * 24 * 60 * 60 * 1000);
+
+    // Create seximal date for the clicked day
+    const clickedSeximalDate = convertToSeximalDate(gregorianDate);
+
+    setSelectedDate({
+      gregorian: gregorianDate,
+      seximal: clickedSeximalDate
+    });
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -271,12 +293,18 @@ export default function Calendar() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {currentSeximalDate.year}
+                  {toBase6(currentSeximalDate.year)}
                 </div>
                 <div className="text-sm text-muted-foreground">Year</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {currentSeximalDate.isIntercalary ? "Festival" : TWOMOONS[currentSeximalDate.twomoon]}
+                </div>
+                <div className="text-sm text-muted-foreground">Month</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary">
@@ -286,7 +314,45 @@ export default function Calendar() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {currentSeximalDate.dayOfYear + 1}
+                  {toBase6(currentSeximalDate.dayOfYear + 1)}
+                </div>
+                <div className="text-sm text-muted-foreground">Day of Year</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Gregorian Calendar Card */}
+        <Card className="mb-8 shadow-lg border border-border">
+          <CardHeader className="bg-secondary text-secondary-foreground">
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <CalendarIcon className="h-8 w-8" />
+              Gregorian Calendar
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-secondary-foreground">
+                  {currentDate.getFullYear()}
+                </div>
+                <div className="text-sm text-muted-foreground">Year</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-secondary-foreground">
+                  {currentDate.toLocaleDateString('en-US', { month: 'long' })}
+                </div>
+                <div className="text-sm text-muted-foreground">Month</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-secondary-foreground">
+                  {currentDate.toLocaleDateString('en-US', { weekday: 'long' })}
+                </div>
+                <div className="text-sm text-muted-foreground">Day of Week</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-secondary-foreground">
+                  {Math.floor((currentDate.getTime() - new Date(currentDate.getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24)) + 1}
                 </div>
                 <div className="text-sm text-muted-foreground">Day of Year</div>
               </div>
@@ -311,17 +377,19 @@ export default function Calendar() {
                         W{toBase6(week.weekNumber)}
                       </div>
                       {week.days.map((day, dayIndex) => (
-                        <div
+                        <Button
                           key={dayIndex}
+                          variant="ghost"
                           className={`
-                            text-center py-2 px-1 text-sm rounded-md transition-colors
+                            h-auto py-2 px-1 text-sm rounded-md transition-colors
                             ${day.isToday
-                              ? "bg-primary text-primary-foreground font-bold ring-2 ring-primary/20"
+                              ? "bg-primary text-primary-foreground font-bold ring-2 ring-primary/20 hover:bg-primary/90"
                               : day.isIntercalary
-                                ? "bg-accent text-accent-foreground"
+                                ? "bg-accent text-accent-foreground hover:bg-accent/90"
                                 : "bg-muted hover:bg-muted/80"
                             }
                           `}
+                          onClick={() => handleDayClick(twomoonIndex, weekIndex, dayIndex)}
                         >
                           {day.isIntercalary ? (
                             <div>
@@ -334,7 +402,7 @@ export default function Calendar() {
                               <div className="text-xs opacity-75">{toBase6(day.date)}</div>
                             </div>
                           )}
-                        </div>
+                        </Button>
                       ))}
                     </div>
                   ))}
@@ -376,6 +444,80 @@ export default function Calendar() {
           </Card>
         </div>
       </main>
+
+      {/* Date Comparison Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Date Comparison</DialogTitle>
+          </DialogHeader>
+          {selectedDate && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Seximal Date */}
+              <Card className="border-primary/20">
+                <CardHeader className="bg-primary/10">
+                  <CardTitle className="text-lg text-primary">Seximal Calendar</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Year:</span>
+                      <span className="font-mono font-bold">{toBase6(selectedDate.seximal.year)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Month:</span>
+                      <span className="font-semibold">
+                        {selectedDate.seximal.isIntercalary ? "Festival" : TWOMOONS[selectedDate.seximal.twomoon]}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Day of Week:</span>
+                      <span className="font-semibold">{DAYS_OF_WEEK[selectedDate.seximal.dayOfWeek]}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Day of Year:</span>
+                      <span className="font-mono font-bold">{toBase6(selectedDate.seximal.dayOfYear + 1)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Gregorian Date */}
+              <Card className="border-secondary/20">
+                <CardHeader className="bg-secondary/10">
+                  <CardTitle className="text-lg text-secondary-foreground">Gregorian Calendar</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Year:</span>
+                      <span className="font-mono font-bold">{selectedDate.gregorian.getFullYear()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Month:</span>
+                      <span className="font-semibold">
+                        {selectedDate.gregorian.toLocaleDateString('en-US', { month: 'long' })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Day of Week:</span>
+                      <span className="font-semibold">
+                        {selectedDate.gregorian.toLocaleDateString('en-US', { weekday: 'long' })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Day of Year:</span>
+                      <span className="font-mono font-bold">
+                        {Math.floor((selectedDate.gregorian.getTime() - new Date(selectedDate.gregorian.getFullYear(), 0, 1).getTime()) / (1000 * 60 * 60 * 24)) + 1}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
