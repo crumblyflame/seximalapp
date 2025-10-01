@@ -117,26 +117,28 @@ export default function Timer() {
   };
 
   const updateCountdown = () => {
-    if (!countdownTime) return;
+    setCountdownTime(prevTime => {
+      if (!prevTime) return null;
 
-    const newTotalSeconds = countdownTime.totalSeconds - 1;
+      const newTotalSeconds = prevTime.totalSeconds - 1;
 
-    if (newTotalSeconds <= 0) {
-      setCountdownTime({
-        totalSeconds: 0,
-        standard: { hours: "0", minutes: "0", seconds: "0" },
-        seximal: { hours: "0", minutes: "0", seconds: "0" }
-      });
-      setIsRunning(false);
-      setIsFinished(true);
-      playNotificationSound();
-    } else {
-      setCountdownTime({
-        totalSeconds: newTotalSeconds,
-        standard: formatTime(newTotalSeconds, "standard"),
-        seximal: formatTime(newTotalSeconds, "seximal")
-      });
-    }
+      if (newTotalSeconds <= 0) {
+        setIsRunning(false);
+        setIsFinished(true);
+        playNotificationSound();
+        return {
+          totalSeconds: 0,
+          standard: { hours: "0", minutes: "0", seconds: "0" },
+          seximal: { hours: "0", minutes: "0", seconds: "0" }
+        };
+      } else {
+        return {
+          totalSeconds: newTotalSeconds,
+          standard: formatTime(newTotalSeconds, "standard"),
+          seximal: formatTime(newTotalSeconds, "seximal")
+        };
+      }
+    });
   };
 
   const startTimer = () => {
