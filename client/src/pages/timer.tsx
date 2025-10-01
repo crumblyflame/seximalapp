@@ -27,7 +27,7 @@ export default function Timer() {
   const [countdownTime, setCountdownTime] = useState<CountdownTime | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
   // Initialize audio context for sound playback
