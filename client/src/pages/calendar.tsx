@@ -150,6 +150,16 @@ export default function Calendar() {
     return result;
   };
 
+  // Convert base-6 number to ordinal (1st, 2nd, 3rd, etc.)
+  const toBase6Ordinal = (decimal: number): string => {
+    const base6 = toBase6(decimal);
+    // For base-6 numbers, we'll use the same ordinal logic as decimal
+    // since ordinal suffixes are about the position, not the base
+    const lastDigit = decimal % 10;
+    const suffix = lastDigit === 1 ? 'st' : lastDigit === 2 ? 'nd' : lastDigit === 3 ? 'rd' : 'th';
+    return base6 + suffix;
+  };
+
   // Generate calendar data for the current year
   const generateCalendarData = (year: number): CalendarTwomoon[] => {
     const isLeapYear = isSeximalLeapYear(year);
@@ -308,7 +318,7 @@ export default function Calendar() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-black">
-                  {toBase6(currentSeximalDate.isIntercalary ?
+                  {toBase6Ordinal(currentSeximalDate.isIntercalary ?
                     (currentSeximalDate.intercalaryDay || 0) + 1 :
                     (currentSeximalDate.week * 6 + currentSeximalDate.dayOfWeek) + 1
                   )}
@@ -409,12 +419,12 @@ export default function Calendar() {
                           {day.isIntercalary ? (
                             <div>
                               <div className="font-semibold">{day.festivalName}</div>
-                              <div className="text-xs opacity-75">{toBase6((twomoonIndex * 60) + (weekIndex * 6) + dayIndex + 1)}</div>
+                              <div className="text-xs opacity-75">{toBase6(dayIndex + 1)}</div>
                             </div>
                           ) : (
                             <div>
                               <div className="font-medium">{DAYS_OF_WEEK[day.dayOfWeek].slice(0, 3)}</div>
-                              <div className="text-xs opacity-75">{toBase6((twomoonIndex * 60) + (weekIndex * 6) + dayIndex + 1)}</div>
+                              <div className="text-xs opacity-75">{toBase6((weekIndex * 6) + dayIndex + 1)}</div>
                             </div>
                           )}
                         </Button>
@@ -488,7 +498,7 @@ export default function Calendar() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Date:</span>
                       <span className="font-mono font-bold text-foreground">
-                        {toBase6(selectedDate.seximal.isIntercalary ?
+                        {toBase6Ordinal(selectedDate.seximal.isIntercalary ?
                           (selectedDate.seximal.intercalaryDay || 0) + 1 :
                           (selectedDate.seximal.week * 6 + selectedDate.seximal.dayOfWeek) + 1
                         )}
