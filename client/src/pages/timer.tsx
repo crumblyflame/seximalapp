@@ -17,10 +17,12 @@ interface TimeInput {
 
 interface CountdownTime {
   totalSeconds: number;
-  standard: TimeInput;
-  seximal: TimeInput;
+  standard: TimeInput & { tenths: string };
+  seximal: TimeInput & { sixths: string };
   seximalTotalUnits: number; // Total seximal time units for proper countdown
   accumulatedTimeForSeximal: number; // Track real seconds accumulated for seximal countdown
+  accumulatedTimeForStandardTenths: number; // Track for standard timer tenths
+  accumulatedTimeForSeximalSixths: number; // Track for seximal timer sixths
 }
 
 export default function Timer() {
@@ -100,7 +102,7 @@ export default function Timer() {
     return seximalUnits - 1;
   };
 
-  const formatSeximalTime = (seximalUnits: number): TimeInput => {
+  const formatSeximalTime = (seximalUnits: number): TimeInput & { sixths: string } => {
     const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
     const remainingAfterHours = seximalUnits % 216;
 
@@ -115,11 +117,12 @@ export default function Timer() {
     return {
       hours: toSeximalDigit(seximalHours),
       minutes: toSeximalDigit(seximalMinutes),
-      seconds: toSeximalDigit(seximalSeconds)
+      seconds: toSeximalDigit(seximalSeconds),
+      sixths: "0"
     };
   };
 
-  const formatTime = (totalSeconds: number, system: TimeSystem): TimeInput => {
+  const formatTime = (totalSeconds: number, system: TimeSystem): TimeInput & { tenths: string } => {
     if (system === "seximal") {
       // For seximal time display, we need to convert from decimal seconds back to seximal time units
       // First, convert total decimal seconds to seximal seconds (each seximal second = 25/9 decimal seconds)
@@ -135,28 +138,57 @@ export default function Timer() {
       return {
         hours: seximalHours.toString(), // Hours in base 10 for display
         minutes: seximalMinutes.toString(), // Minutes in base 10 for display
-        seconds: seximalSeconds.toString() // Seconds in base 10 for display
+        seconds: seximalSeconds.toString(), // Seconds in base 10 for display
+        tenths: "0"
       };
     } else {
-      // Standard time: truncate fractional seconds for display but keep precision in memory
+      // Standard time: show tenths of seconds
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = Math.floor(totalSeconds % 60); // Truncate fractional seconds
+      const seconds = Math.floor(totalSeconds % 60);
+      const tenths = Math.floor((totalSeconds * 10) % 10); // Get tenths place
 
       return {
         hours: hours.toString(),
         minutes: minutes.toString(),
-        seconds: seconds.toString()
+        seconds: seconds.toString(),
+        tenths: tenths.toString()
       };
     }
+  };
+
+  const formatSeximalTimeWithSixths = (seximalUnits: number, fractionalTime: number): TimeInput & { sixths: string } => {
+    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
+    const remainingAfterHours = seximalUnits % 216;
+
+    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+
+    // Calculate sixths of a seximal second
+    // A seximal second = 25/9 real seconds
+    // A sixth of a seximal second = (25/9)/6 = 25/54 real seconds
+    // So we need to calculate how many sixths have passed based on fractional time
+    const sixths = Math.floor((fractionalTime / (25/54)) % 6);
+
+    // Convert to seximal digits (base 6)
+    const toSeximalDigit = (num: number): string => {
+      return num.toString(6);
+    };
+
+    return {
+      hours: toSeximalDigit(seximalHours),
+      minutes: toSeximalDigit(seximalMinutes),
+      seconds: toSeximalDigit(seximalSeconds),
+      sixths: sixths.toString(6) // Show sixths in base 6
+    };
   };
 
   const updateCountdown = () => {
     setCountdownTime(prevTime => {
       if (!prevTime) return null;
 
-      const newTotalSeconds = prevTime.totalSeconds - 1;
-      const newAccumulatedTime = prevTime.accumulatedTimeForSeximal + 1; // Add 1 second
+      const newTotalSeconds = prevTime.totalSeconds - 0.1; // Decrement by 0.1 seconds for tenths precision
+      const newAccumulatedTime = prevTime.accumulatedTimeForSeximal + 0.1; // Add 0.1 seconds
       const SEXIMAL_SECOND_DURATION = 25/9; // ~2.777 seconds
 
       let newSeximalUnits = prevTime.seximalTotalUnits;
@@ -174,18 +206,22 @@ export default function Timer() {
         playNotificationSound();
         return {
           totalSeconds: 0,
-          standard: { hours: "0", minutes: "0", seconds: "0" },
-          seximal: { hours: "0", minutes: "0", seconds: "0" },
+          standard: { hours: "0", minutes: "0", seconds: "0", tenths: "0" },
+          seximal: { hours: "0", minutes: "0", seconds: "0", sixths: "0" },
           seximalTotalUnits: 0,
-          accumulatedTimeForSeximal: 0
+          accumulatedTimeForSeximal: 0,
+          accumulatedTimeForStandardTenths: 0,
+          accumulatedTimeForSeximalSixths: 0
         };
       } else {
         return {
           totalSeconds: newTotalSeconds,
           standard: formatTime(newTotalSeconds, "standard"),
-          seximal: formatSeximalTime(newSeximalUnits),
+          seximal: formatSeximalTimeWithSixths(newSeximalUnits, resetAccumulatedTime % (25/9)),
           seximalTotalUnits: newSeximalUnits,
-          accumulatedTimeForSeximal: resetAccumulatedTime
+          accumulatedTimeForSeximal: resetAccumulatedTime,
+          accumulatedTimeForStandardTenths: 0,
+          accumulatedTimeForSeximalSixths: 0
         };
       }
     });
@@ -196,7 +232,7 @@ export default function Timer() {
 
     setIsRunning(true);
     setIsFinished(false);
-    intervalRef.current = setInterval(updateCountdown, 1000);
+    intervalRef.current = setInterval(updateCountdown, 100); // Update every 100ms for tenths precision
   };
 
   const pauseTimer = () => {
@@ -230,9 +266,11 @@ export default function Timer() {
       setCountdownTime({
         totalSeconds,
         standard: formatTime(totalSeconds, "standard"),
-        seximal: formatSeximalTime(seximalUnits),
+        seximal: formatSeximalTimeWithSixths(seximalUnits, 0),
         seximalTotalUnits: seximalUnits,
-        accumulatedTimeForSeximal: 0
+        accumulatedTimeForSeximal: 0,
+        accumulatedTimeForStandardTenths: 0,
+        accumulatedTimeForSeximalSixths: 0
       });
       setIsFinished(false);
     }
@@ -347,7 +385,8 @@ export default function Timer() {
                     <div className="text-4xl font-mono font-bold text-foreground">
                       {countdownTime.standard.hours.padStart(2, "0")}:
                       {countdownTime.standard.minutes.padStart(2, "0")}:
-                      {countdownTime.standard.seconds.padStart(2, "0")}
+                      {countdownTime.standard.seconds.padStart(2, "0")}.
+                      <span className="text-3xl">{countdownTime.standard.tenths}</span>
                     </div>
                   </div>
 
@@ -357,7 +396,8 @@ export default function Timer() {
                     <div className="text-4xl font-mono font-bold text-foreground">
                       {countdownTime.seximal.hours.padStart(2, "0")}:
                       {countdownTime.seximal.minutes.padStart(2, "0")}:
-                      {countdownTime.seximal.seconds.padStart(2, "0")}
+                      {countdownTime.seximal.seconds.padStart(2, "0")}.
+                      <span className="text-3xl">{countdownTime.seximal.sixths}</span>
                       <span className="text-2xl align-super">₆</span>
                     </div>
                   </div>
