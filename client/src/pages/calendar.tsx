@@ -295,37 +295,37 @@ export default function Calendar() {
           <CardContent className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-primary-foreground">
+                <div className="text-2xl font-bold text-black">
                   {toBase6(currentSeximalDate.year)}
                 </div>
-                <div className="text-sm text-primary-foreground/70">Year</div>
+                <div className="text-sm text-black/70">Year</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary-foreground">
+                <div className="text-2xl font-bold text-black">
                   {currentSeximalDate.isIntercalary ? "Festival" : TWOMOONS[currentSeximalDate.twomoon]}
                 </div>
-                <div className="text-sm text-primary-foreground/70">Month</div>
+                <div className="text-sm text-black/70">Month</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary-foreground">
+                <div className="text-2xl font-bold text-black">
                   {toBase6(currentSeximalDate.isIntercalary ?
                     (currentSeximalDate.intercalaryDay || 0) + 1 :
                     (currentSeximalDate.week * 6 + currentSeximalDate.dayOfWeek) + 1
                   )}
                 </div>
-                <div className="text-sm text-primary-foreground/70">Date</div>
+                <div className="text-sm text-black/70">Date</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary-foreground">
+                <div className="text-2xl font-bold text-black">
                   {DAYS_OF_WEEK[currentSeximalDate.dayOfWeek]}
                 </div>
-                <div className="text-sm text-primary-foreground/70">Day of Week</div>
+                <div className="text-sm text-black/70">Day of Week</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-primary-foreground">
+                <div className="text-2xl font-bold text-black">
                   {toBase6(currentSeximalDate.dayOfYear + 1)}
                 </div>
-                <div className="text-sm text-primary-foreground/70">Day of Year</div>
+                <div className="text-sm text-black/70">Day of Year</div>
               </div>
             </div>
           </CardContent>
@@ -470,7 +470,7 @@ export default function Calendar() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Seximal Date */}
               <Card className="border-primary/20">
-                <CardHeader className="bg-primary/10">
+                <CardHeader className="bg-primary">
                   <CardTitle className="text-lg text-primary-foreground">Seximal Calendar</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
@@ -508,7 +508,7 @@ export default function Calendar() {
 
               {/* Gregorian Date */}
               <Card className="border-secondary/20">
-                <CardHeader className="bg-secondary/10">
+                <CardHeader className="bg-secondary">
                   <CardTitle className="text-lg text-secondary-foreground">Gregorian Calendar</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
