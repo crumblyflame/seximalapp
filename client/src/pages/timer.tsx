@@ -74,31 +74,34 @@ export default function Timer() {
     const seconds = parseInt(time.seconds) || 0;
 
     if (system === "seximal") {
-      // Convert from seximal to decimal first, then to seconds
-      const decimalHours = hours * 36 + minutes * 6 + seconds; // 6^2, 6^1, 6^0
-      return decimalHours * 3600; // Convert hours to seconds
+      // For seximal time: each unit represents base-6 values
+      // Convert seximal hours:minutes:seconds to total decimal seconds
+      const totalSeximalSeconds = hours * 216 + minutes * 36 + seconds; // 6^3, 6^2, 6^1 (no 6^0 place for seconds)
+      // Each seximal second equals ~2.777... real seconds (25/9)
+      return totalSeximalSeconds * (25/9);
     } else {
+      // Standard time: direct conversion to seconds
       return hours * 3600 + minutes * 60 + seconds;
     }
   };
 
   const formatTime = (totalSeconds: number, system: TimeSystem): TimeInput => {
     if (system === "seximal") {
-      // Convert total seconds to seximal time units
-      const seximalHours = Math.floor(totalSeconds / 3600);
-      const remainingAfterHours = totalSeconds % 3600;
+      // For seximal time display, we need to convert from decimal seconds back to seximal time units
+      // First, convert total decimal seconds to seximal seconds (each seximal second = 25/9 decimal seconds)
+      const totalSeximalSeconds = Math.floor(totalSeconds / (25/9));
 
-      // Seximal minutes (every 100 seconds)
-      const seximalMinutes = Math.floor(remainingAfterHours / 100);
-      const remainingAfterMinutes = remainingAfterHours % 100;
+      // Convert to seximal time units
+      const seximalHours = Math.floor(totalSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
+      const remainingAfterHours = totalSeximalSeconds % 216;
 
-      // Seximal seconds (every ~2.78 seconds)
-      const seximalSeconds = Math.floor(remainingAfterMinutes / (25/9));
+      const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+      const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
 
       return {
-        hours: Math.floor(seximalHours / 36).toString(),
-        minutes: (seximalHours % 36).toString(),
-        seconds: seximalSeconds.toString()
+        hours: Math.floor(seximalHours / 36).toString(), // 6^2 place for hours
+        minutes: (seximalHours % 36).toString(), // 6^1 place for minutes
+        seconds: seximalSeconds.toString() // 6^0 place for seconds
       };
     } else {
       const hours = Math.floor(totalSeconds / 3600);
