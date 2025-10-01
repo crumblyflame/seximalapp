@@ -142,18 +142,17 @@ export default function Timer() {
         tenths: "0"
       };
     } else {
-      // Standard time: show tenths of seconds (countdown style)
+      // Standard time: show tenths of seconds (natural countdown)
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = Math.floor(totalSeconds % 60);
-      const tenths = Math.floor((totalSeconds * 10) % 10); // Get tenths place
-      const countdownTenths = (9 - tenths) % 10; // Reverse for countdown (9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+      const tenths = Math.floor((totalSeconds * 10) % 10); // Get tenths place (0-9 countdown)
 
       return {
         hours: hours.toString(),
         minutes: minutes.toString(),
         seconds: seconds.toString(),
-        tenths: countdownTenths.toString()
+        tenths: tenths.toString()
       };
     }
   };
