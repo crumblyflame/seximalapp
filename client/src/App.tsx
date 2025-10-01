@@ -7,9 +7,10 @@ import { MainNavigation } from "@/components/main-navigation";
 import Converter from "@/pages/converter";
 import Clock from "@/pages/clock";
 import Calendar from "@/pages/calendar";
+import Timer from "@/pages/timer";
 
 function App() {
-  const [activeTab, setActiveTab] = useState<"units" | "clock" | "calendar">("units");
+  const [activeTab, setActiveTab] = useState<"units" | "clock" | "calendar" | "timer">("units");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -21,7 +22,7 @@ function App() {
           <MainNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* Content */}
-          {activeTab === "units" ? <Converter /> : activeTab === "clock" ? <Clock /> : <Calendar />}
+          {activeTab === "units" ? <Converter /> : activeTab === "clock" ? <Clock /> : activeTab === "timer" ? <Timer /> : <Calendar />}
         </div>
         <Toaster />
       </TooltipProvider>
