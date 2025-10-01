@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 // Seximal calendar constants
-const TWOMOONS = ["Pama", "Befa", "Tiva", "Donu", "Kusu", "Gerza"] as const;
+const TWOMOONS = ["Pama", "Befa", "Tiva", "Dona", "Kusa", "Gerza"] as const;
 const DAYS_OF_WEEK = ["Firsday", "Seconday", "Thirday", "Forday", "Fifday", "Siksday"] as const;
-const INTERCALARY_DAYS = ["Festival 1", "Festival 2", "Festival 3", "Festival 4", "Festival 5", "Festival 6"] as const;
+const INTERCALARY_DAYS = ["Fest 1", "Fest 2", "Fest 3", "Fest 4", "Fest 5", "Fest 6"] as const;
 
 // Autumnal equinox of Gregorian year 2000 (Year 1 of seximal calendar)
 const SEXIMAL_EPOCH = new Date(2000, 8, 22); // Month is 0-indexed, so 8 = September
@@ -135,6 +135,17 @@ export default function Calendar() {
     return false;
   };
 
+  // Convert decimal number to base-6 representation
+  const toBase6 = (decimal: number): string => {
+    if (decimal === 0) return "0";
+    let result = "";
+    while (decimal > 0) {
+      result = (decimal % 6) + result;
+      decimal = Math.floor(decimal / 6);
+    }
+    return result;
+  };
+
   // Generate calendar data for the current year
   const generateCalendarData = (year: number): CalendarTwomoon[] => {
     const isLeapYear = isSeximalLeapYear(year);
@@ -148,7 +159,7 @@ export default function Calendar() {
 
       for (let week = 0; week < 10; week++) {
         const weekData: CalendarWeek = {
-          weekNumber: week,
+          weekNumber: week + 1, // Start from 1 instead of 0
           days: []
         };
 
@@ -297,7 +308,7 @@ export default function Calendar() {
                   {twomoon.weeks.map((week, weekIndex) => (
                     <div key={weekIndex} className="grid grid-cols-7 gap-1">
                       <div className="text-xs text-muted-foreground text-center py-1">
-                        W{week.weekNumber}
+                        W{toBase6(week.weekNumber)}
                       </div>
                       {week.days.map((day, dayIndex) => (
                         <div
@@ -315,12 +326,12 @@ export default function Calendar() {
                           {day.isIntercalary ? (
                             <div>
                               <div className="font-semibold">{day.festivalName}</div>
-                              <div className="text-xs opacity-75">{day.date}</div>
+                              <div className="text-xs opacity-75">{toBase6(day.date)}</div>
                             </div>
                           ) : (
                             <div>
                               <div className="font-medium">{DAYS_OF_WEEK[day.dayOfWeek].slice(0, 3)}</div>
-                              <div className="text-xs opacity-75">{day.date}</div>
+                              <div className="text-xs opacity-75">{toBase6(day.date)}</div>
                             </div>
                           )}
                         </div>
