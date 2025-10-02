@@ -227,17 +227,6 @@ export default function Timer() {
       if (!prevTime) return null;
 
       const newTotalSeconds = prevTime.totalSeconds - 0.1; // Decrement by 0.1 seconds for tenths precision
-      const newAccumulatedTime = prevTime.accumulatedTimeForSeximal + 0.1; // Add 0.1 seconds
-      const SEXIMAL_SECOND_DURATION = 25/9; // ~2.777 seconds
-
-      let newSeximalUnits = prevTime.seximalTotalUnits;
-      let resetAccumulatedTime = newAccumulatedTime;
-
-      // Check if enough time has passed to decrement seximal units
-      if (newAccumulatedTime >= SEXIMAL_SECOND_DURATION) {
-        newSeximalUnits = decrementSeximalTime(prevTime.seximalTotalUnits);
-        resetAccumulatedTime = newAccumulatedTime - SEXIMAL_SECOND_DURATION;
-      }
 
       if (newTotalSeconds <= 0) {
         setIsRunning(false);
@@ -253,12 +242,18 @@ export default function Timer() {
           accumulatedTimeForSeximalSixths: 0
         };
       } else {
+        // Update standard time (simple decrement)
+        const newStandardTime = formatTime(newTotalSeconds, "standard");
+
+        // Update seximal time - convert current total seconds to seximal time
+        const currentSeximalDisplay = formatStandardToSeximal(newTotalSeconds);
+
         return {
           totalSeconds: newTotalSeconds,
-          standard: formatTime(newTotalSeconds, "standard"),
-          seximal: formatSeximalTimeWithSixths(newSeximalUnits, resetAccumulatedTime % (25/9)),
-          seximalTotalUnits: newSeximalUnits,
-          accumulatedTimeForSeximal: resetAccumulatedTime,
+          standard: newStandardTime,
+          seximal: currentSeximalDisplay,
+          seximalTotalUnits: prevTime.seximalTotalUnits,
+          accumulatedTimeForSeximal: 0,
           accumulatedTimeForStandardTenths: 0,
           accumulatedTimeForSeximalSixths: 0
         };
@@ -294,25 +289,15 @@ export default function Timer() {
     if (totalSeconds > 0) {
       let seximalUnits: number;
       let initialSeximalDisplay: TimeInput & { sixths: string };
-      let initialFractionalTime: number;
 
       if (timeSystem === "seximal") {
         // When input is in seximal format, use the input values directly as seximal units
         seximalUnits = convertToSeximalUnits(inputTime);
-        initialSeximalDisplay = formatSeximalTimeWithSixths(seximalUnits, 0);
-        initialFractionalTime = 0;
+        initialSeximalDisplay = formatSeximalTime(seximalUnits);
       } else {
         // When input is in standard format, use the proper conversion for initial display
         seximalUnits = Math.floor(totalSeconds / (25/9));
         initialSeximalDisplay = formatStandardToSeximal(totalSeconds);
-
-        // Calculate the initial fractional time to preserve the correct display
-        const totalSeximalSecondsWithFraction = totalSeconds * (9/25);
-        const wholeSeximalSeconds = Math.floor(totalSeximalSecondsWithFraction);
-        const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
-
-        // Convert fractional part to real seconds for the countdown timer
-        initialFractionalTime = fractionalSeximalSeconds * (25/9);
       }
 
       setCountdownTime({
@@ -320,7 +305,7 @@ export default function Timer() {
         standard: formatTime(totalSeconds, "standard"),
         seximal: initialSeximalDisplay,
         seximalTotalUnits: seximalUnits,
-        accumulatedTimeForSeximal: initialFractionalTime,
+        accumulatedTimeForSeximal: 0,
         accumulatedTimeForStandardTenths: 0,
         accumulatedTimeForSeximalSixths: 0
       });
