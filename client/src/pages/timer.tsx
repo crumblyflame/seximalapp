@@ -81,7 +81,7 @@ export default function Timer() {
     if (system === "seximal") {
       // For seximal time: each unit represents base-6 values
       // Convert seximal hours:minutes:seconds to total decimal seconds
-      const totalSeximalSeconds = hours * 216 + minutes * 36 + seconds; // 6^3, 6^2, 6^1 (no 6^0 place for seconds)
+      const totalSeximalSeconds = hours * 1296 + minutes * 36 + seconds; // 6^4, 6^2, 6^0
       // Each seximal second equals ~2.777... real seconds (25/9)
       return totalSeximalSeconds * (25/9);
     } else {
@@ -103,11 +103,11 @@ export default function Timer() {
     const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
 
     // Convert to seximal time units (base 6)
-    const seximalHours = Math.floor(wholeSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
-    const remainingAfterHours = wholeSeximalSeconds % 216;
+    const seximalHours = Math.floor(wholeSeximalSeconds / 1296); // 6^4 seximal seconds per seximal hour
+    const remainingAfterHours = wholeSeximalSeconds % 1296;
 
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+    const seximalSeconds = remainingAfterHours % 36; // 6^2 seximal seconds
 
     // Calculate sixths of a seximal second (0-5 in base 6)
     // Since we're showing fractional seximal seconds, we need to convert the fractional part
@@ -126,7 +126,7 @@ export default function Timer() {
     const minutes = parseInt(time.minutes) || 0;
     const seconds = parseInt(time.seconds) || 0;
     // Convert to total seximal time units (base 6)
-    return hours * 216 + minutes * 36 + seconds; // 6^3, 6^2, 6^1
+    return hours * 1296 + minutes * 36 + seconds; // 6^4, 6^2, 6^0
   };
 
   const decrementSeximalTime = (seximalUnits: number): number => {
@@ -135,11 +135,11 @@ export default function Timer() {
   };
 
   const formatSeximalTime = (seximalUnits: number): TimeInput & { sixths: string } => {
-    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
-    const remainingAfterHours = seximalUnits % 216;
+    const seximalHours = Math.floor(seximalUnits / 1296); // 6^4 seximal seconds per seximal hour
+    const remainingAfterHours = seximalUnits % 1296;
 
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+    const seximalSeconds = remainingAfterHours % 36; // 6^2 seximal seconds
 
     // Convert to seximal digits (base 6)
     const toSeximalDigit = (num: number): string => {
@@ -161,11 +161,11 @@ export default function Timer() {
       const totalSeximalSeconds = Math.floor(totalSeconds / (25/9));
 
       // Convert to seximal time units (base 6)
-      const seximalHours = Math.floor(totalSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
-      const remainingAfterHours = totalSeximalSeconds % 216;
+      const seximalHours = Math.floor(totalSeximalSeconds / 1296); // 6^4 seximal seconds per seximal hour
+      const remainingAfterHours = totalSeximalSeconds % 1296;
 
       const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-      const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+      const seximalSeconds = remainingAfterHours % 36; // 6^2 seximal seconds
 
       return {
         hours: seximalHours.toString(), // Hours in base 10 for display
@@ -192,11 +192,11 @@ export default function Timer() {
 
 
   const formatSeximalTimeWithSixths = (seximalUnits: number, fractionalTime: number): TimeInput & { sixths: string } => {
-    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
-    const remainingAfterHours = seximalUnits % 216;
+    const seximalHours = Math.floor(seximalUnits / 1296); // 6^4 seximal seconds per seximal hour
+    const remainingAfterHours = seximalUnits % 1296;
 
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+    const seximalSeconds = remainingAfterHours % 36; // 6^2 seximal seconds
 
     // Calculate sixths of a seximal second for countdown (decrementing)
     // A seximal second = 25/9 real seconds
@@ -231,11 +231,11 @@ export default function Timer() {
     const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
 
     // Convert to seximal time units (base 6)
-    const seximalHours = Math.floor(wholeSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
-    const remainingAfterHours = wholeSeximalSeconds % 216;
+    const seximalHours = Math.floor(wholeSeximalSeconds / 1296); // 6^4 seximal seconds per seximal hour
+    const remainingAfterHours = wholeSeximalSeconds % 1296;
 
     const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+    const seximalSeconds = remainingAfterHours % 36; // 6^2 seximal seconds
 
     // Calculate sixths of a seximal second (0-5 in base 6)
     // Since we're showing fractional seximal seconds, we need to convert the fractional part
@@ -390,7 +390,7 @@ export default function Timer() {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor="hours" className="text-sm text-muted-foreground">
-                      {timeSystem === "standard" ? "Hours" : "Hours (6²)"}
+                      {timeSystem === "standard" ? "Hours" : "Hours"}
                     </Label>
                     <Input
                       id="hours"
@@ -403,7 +403,7 @@ export default function Timer() {
                   </div>
                   <div>
                     <Label htmlFor="minutes" className="text-sm text-muted-foreground">
-                      {timeSystem === "standard" ? "Minutes" : "Minutes (6¹)"}
+                      {timeSystem === "standard" ? "Minutes" : "Minutes"}
                     </Label>
                     <Input
                       id="minutes"
@@ -416,7 +416,7 @@ export default function Timer() {
                   </div>
                   <div>
                     <Label htmlFor="seconds" className="text-sm text-muted-foreground">
-                      {timeSystem === "standard" ? "Seconds" : "Seconds (6⁰)"}
+                      {timeSystem === "standard" ? "Seconds" : "Seconds"}
                     </Label>
                     <Input
                       id="seconds"
@@ -528,9 +528,9 @@ export default function Timer() {
                 <div>
                   <h3 className="font-semibold mb-2">Seximal Time</h3>
                   <div className="space-y-1">
-                    <div>• Hours: 0-35₆ (6² place)</div>
-                    <div>• Minutes: 0-55₆ (6¹ place, ~100 seconds each)</div>
-                    <div>• Seconds: 0-55₆ (6⁰ place, ~2.78 seconds each)</div>
+                    <div>• Hours: 0-35₆ in a day</div>
+                    <div>• Minutes: 0-55₆ (~100 standard seconds each)</div>
+                    <div>• Seconds: 0-55₆ (~2.78 standard seconds each)</div>
                   </div>
                 </div>
               </div>
