@@ -74,18 +74,21 @@ export default function Timer() {
   };
 
   const convertToSeconds = (time: TimeInput, system: TimeSystem): number => {
-    const hours = parseInt(time.hours) || 0;
-    const minutes = parseInt(time.minutes) || 0;
-    const seconds = parseInt(time.seconds) || 0;
-
     if (system === "seximal") {
-      // For seximal time: each unit represents base-6 values
+      // For seximal time: interpret input values as base-6
+      const hours = parseInt(time.hours, 6) || 0;
+      const minutes = parseInt(time.minutes, 6) || 0;
+      const seconds = parseInt(time.seconds, 6) || 0;
+
       // Convert seximal hours:minutes:seconds to total decimal seconds
       const totalSeximalSeconds = hours * 1296 + minutes * 36 + seconds; // 6^4, 6^2, 6^0
       // Each seximal second equals ~2.777... real seconds (25/9)
       return totalSeximalSeconds * (25/9);
     } else {
-      // Standard time: direct conversion to seconds
+      // Standard time: direct conversion to seconds (base-10)
+      const hours = parseInt(time.hours) || 0;
+      const minutes = parseInt(time.minutes) || 0;
+      const seconds = parseInt(time.seconds) || 0;
       return hours * 3600 + minutes * 60 + seconds;
     }
   };
@@ -122,9 +125,10 @@ export default function Timer() {
   };
 
   const convertToSeximalUnits = (time: TimeInput): number => {
-    const hours = parseInt(time.hours) || 0;
-    const minutes = parseInt(time.minutes) || 0;
-    const seconds = parseInt(time.seconds) || 0;
+    // For seximal time, interpret input values as base-6
+    const hours = parseInt(time.hours, 6) || 0;
+    const minutes = parseInt(time.minutes, 6) || 0;
+    const seconds = parseInt(time.seconds, 6) || 0;
     // Convert to total seximal time units (base 6)
     return hours * 1296 + minutes * 36 + seconds; // 6^4, 6^2, 6^0
   };
@@ -346,8 +350,13 @@ export default function Timer() {
   };
 
   const handleInputChange = (field: keyof TimeInput, value: string) => {
-    // Only allow numeric input
-    if (!/^\d*$/.test(value)) return;
+    if (timeSystem === "seximal") {
+      // For seximal time, only allow digits 0-5 (base-6 digits)
+      if (!/^[0-5]*$/.test(value)) return;
+    } else {
+      // For standard time, allow digits 0-9
+      if (!/^\d*$/.test(value)) return;
+    }
 
     setInputTime(prev => ({
       ...prev,
