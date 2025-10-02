@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Play, Pause, RotateCcw, Timer as TimerIcon } from "lucide-react";
+import { decimalToSeximal } from "@/lib/seximal";
 
 type TimeSystem = "standard" | "seximal";
 
@@ -87,6 +88,37 @@ export default function Timer() {
       // Standard time: direct conversion to seconds
       return hours * 3600 + minutes * 60 + seconds;
     }
+  };
+
+  const convertStandardToSeximalTime = (totalSeconds: number): TimeInput & { sixths: string } => {
+    // Convert decimal seconds to seximal time units properly
+    // 1 seximal second = 25/9 real seconds
+    // So real seconds to seximal seconds conversion factor is 9/25
+
+    // First convert to total seximal seconds (with fractional part)
+    const totalSeximalSecondsWithFraction = totalSeconds * (9/25);
+
+    // Split into whole and fractional parts
+    const wholeSeximalSeconds = Math.floor(totalSeximalSecondsWithFraction);
+    const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
+
+    // Convert to seximal time units (base 6)
+    const seximalHours = Math.floor(wholeSeximalSeconds / 216); // 6^3 seximal seconds per seximal hour
+    const remainingAfterHours = wholeSeximalSeconds % 216;
+
+    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+
+    // Calculate sixths of a seximal second (0-5 in base 6)
+    // Since we're showing fractional seximal seconds, we need to convert the fractional part
+    const sixths = Math.floor(fractionalSeximalSeconds * 6) % 6;
+
+    return {
+      hours: decimalToSeximal(seximalHours),
+      minutes: decimalToSeximal(seximalMinutes),
+      seconds: decimalToSeximal(seximalSeconds),
+      sixths: decimalToSeximal(sixths)
+    };
   };
 
   const convertToSeximalUnits = (time: TimeInput): number => {
@@ -246,7 +278,7 @@ export default function Timer() {
         const newStandardTime = formatTime(newTotalSeconds, "standard");
 
         // Update seximal time - convert current total seconds to seximal time
-        const currentSeximalDisplay = formatStandardToSeximal(newTotalSeconds);
+        const currentSeximalDisplay = convertStandardToSeximalTime(newTotalSeconds);
 
         return {
           totalSeconds: newTotalSeconds,
@@ -297,7 +329,7 @@ export default function Timer() {
       } else {
         // When input is in standard format, use the proper conversion for initial display
         seximalUnits = Math.floor(totalSeconds / (25/9));
-        initialSeximalDisplay = formatStandardToSeximal(totalSeconds);
+        initialSeximalDisplay = convertStandardToSeximalTime(totalSeconds);
       }
 
       setCountdownTime({
