@@ -157,6 +157,35 @@ export default function Timer() {
     }
   };
 
+
+
+  const formatSeximalTimeWithSixths = (seximalUnits: number, fractionalTime: number): TimeInput & { sixths: string } => {
+    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
+    const remainingAfterHours = seximalUnits % 216;
+
+    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
+    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
+
+    // Calculate sixths of a seximal second for countdown (decrementing)
+    // A seximal second = 25/9 real seconds
+    // A sixth of a seximal second = (25/9)/6 = 25/54 real seconds
+    // For countdown: we want to show 5, 4, 3, 2, 1, 0 as time progresses
+    const sixths = Math.floor((fractionalTime / (25/54)) % 6);
+    const countdownSixths = (5 - sixths) % 6; // Reverse the count for countdown
+
+    // Convert to seximal digits (base 6)
+    const toSeximalDigit = (num: number): string => {
+      return num.toString(6);
+    };
+
+    return {
+      hours: toSeximalDigit(seximalHours),
+      minutes: toSeximalDigit(seximalMinutes),
+      seconds: toSeximalDigit(seximalSeconds),
+      sixths: countdownSixths.toString(6) // Show countdown sixths in base 6
+    };
+  };
+
   const formatStandardToSeximal = (totalSeconds: number): TimeInput & { sixths: string } => {
     // Convert decimal seconds to seximal time units properly
     // 1 seximal second = 25/9 real seconds
@@ -190,33 +219,6 @@ export default function Timer() {
       minutes: toSeximalDigit(seximalMinutes),
       seconds: toSeximalDigit(seximalSeconds),
       sixths: sixths.toString(6)
-    };
-  };
-
-  const formatSeximalTimeWithSixths = (seximalUnits: number, fractionalTime: number): TimeInput & { sixths: string } => {
-    const seximalHours = Math.floor(seximalUnits / 216); // 6^3 seximal seconds per seximal hour
-    const remainingAfterHours = seximalUnits % 216;
-
-    const seximalMinutes = Math.floor(remainingAfterHours / 36); // 6^2 seximal seconds per seximal minute
-    const seximalSeconds = remainingAfterHours % 36; // 6^1 seximal seconds
-
-    // Calculate sixths of a seximal second for countdown (decrementing)
-    // A seximal second = 25/9 real seconds
-    // A sixth of a seximal second = (25/9)/6 = 25/54 real seconds
-    // For countdown: we want to show 5, 4, 3, 2, 1, 0 as time progresses
-    const sixths = Math.floor((fractionalTime / (25/54)) % 6);
-    const countdownSixths = (5 - sixths) % 6; // Reverse the count for countdown
-
-    // Convert to seximal digits (base 6)
-    const toSeximalDigit = (num: number): string => {
-      return num.toString(6);
-    };
-
-    return {
-      hours: toSeximalDigit(seximalHours),
-      minutes: toSeximalDigit(seximalMinutes),
-      seconds: toSeximalDigit(seximalSeconds),
-      sixths: countdownSixths.toString(6) // Show countdown sixths in base 6
     };
   };
 
@@ -292,15 +294,25 @@ export default function Timer() {
     if (totalSeconds > 0) {
       let seximalUnits: number;
       let initialSeximalDisplay: TimeInput & { sixths: string };
+      let initialFractionalTime: number;
 
       if (timeSystem === "seximal") {
         // When input is in seximal format, use the input values directly as seximal units
         seximalUnits = convertToSeximalUnits(inputTime);
         initialSeximalDisplay = formatSeximalTimeWithSixths(seximalUnits, 0);
+        initialFractionalTime = 0;
       } else {
         // When input is in standard format, use the proper conversion for initial display
         seximalUnits = Math.floor(totalSeconds / (25/9));
         initialSeximalDisplay = formatStandardToSeximal(totalSeconds);
+
+        // Calculate the initial fractional time to preserve the correct display
+        const totalSeximalSecondsWithFraction = totalSeconds * (9/25);
+        const wholeSeximalSeconds = Math.floor(totalSeximalSecondsWithFraction);
+        const fractionalSeximalSeconds = totalSeximalSecondsWithFraction - wholeSeximalSeconds;
+
+        // Convert fractional part to real seconds for the countdown timer
+        initialFractionalTime = fractionalSeximalSeconds * (25/9);
       }
 
       setCountdownTime({
@@ -308,7 +320,7 @@ export default function Timer() {
         standard: formatTime(totalSeconds, "standard"),
         seximal: initialSeximalDisplay,
         seximalTotalUnits: seximalUnits,
-        accumulatedTimeForSeximal: 0,
+        accumulatedTimeForSeximal: initialFractionalTime,
         accumulatedTimeForStandardTenths: 0,
         accumulatedTimeForSeximalSixths: 0
       });
